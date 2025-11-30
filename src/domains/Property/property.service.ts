@@ -23,7 +23,9 @@ const getAllProperties = async (options: GetPropertiesOptions) => {
   const { page, limit, location, type, status, minPrice, maxPrice } = options;
 
   // Create cache key based on query parameters
-  const cacheKey = `properties:${page}:${limit}:${location || 'all'}:${type || 'all'}:${status || 'all'}:${minPrice || 'none'}:${maxPrice || 'none'}`;
+  const cacheKey = `properties:${page}:${limit}:${location || "all"}:${
+    type || "all"
+  }:${status || "all"}:${minPrice || "none"}:${maxPrice || "none"}`;
 
   try {
     // Try to get cached result first
@@ -36,7 +38,7 @@ const getAllProperties = async (options: GetPropertiesOptions) => {
     const filter: any = {};
 
     if (location) {
-      filter.location = { $regex: location, $options: 'i' }; // Case insensitive search
+      filter.location = { $regex: location, $options: "i" }; // Case insensitive search
     }
 
     if (type) {
@@ -93,7 +95,7 @@ const getAllProperties = async (options: GetPropertiesOptions) => {
     const filter: any = {};
 
     if (location) {
-      filter.location = { $regex: location, $options: 'i' }; // Case insensitive search
+      filter.location = { $regex: location, $options: "i" }; // Case insensitive search
     }
 
     if (type) {
@@ -171,10 +173,14 @@ const getPropertyById = async (propertyId: string) => {
 
 // Service to update a property - also update cache
 const updateProperty = async (propertyId: string, propertyData: any) => {
-  const updatedProperty = await Property.findByIdAndUpdate(propertyId, propertyData, {
-    new: true, // Return the updated document
-    runValidators: true, // Ensure validators are run
-  });
+  const updatedProperty = await Property.findByIdAndUpdate(
+    propertyId,
+    propertyData,
+    {
+      new: true, // Return the updated document
+      runValidators: true, // Ensure validators are run
+    }
+  );
 
   if (updatedProperty) {
     // Invalidate the cached property

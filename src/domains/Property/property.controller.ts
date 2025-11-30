@@ -2,6 +2,8 @@ import { Response } from "express";
 import { ProtectedRequest } from "../../types/protected-request";
 import propertyService from "./property.service";
 import { handleError } from "../../lib/errorsHandle";
+import httpStatus from "http-status";
+import { response } from "../../lib/response";
 
 // Controller to create a new property
 const createProperty = async (req: ProtectedRequest, res: Response) => {
@@ -42,7 +44,14 @@ const getAllProperties = async (req: ProtectedRequest, res: Response) => {
     };
 
     const result = await propertyService.getAllProperties(options);
-    res.status(200).json(result);
+    res.status(httpStatus.CREATED).json(
+      response({
+        message: "All Properties ",
+        status: "OK",
+        statusCode: httpStatus.OK,
+        data: result,
+      })
+    );
   } catch (error) {
     const handledError = handleError(error); // Handle the error using the utility
     res.status(500).json({ error: handledError.message });
@@ -57,7 +66,14 @@ const getPropertyById = async (req: ProtectedRequest, res: Response) => {
     if (!property) {
       return res.status(404).json({ error: "Property not found" });
     }
-    res.status(200).json({ data: property });
+    res.status(httpStatus.CREATED).json(
+      response({
+        message: "Properties ",
+        status: "OK",
+        statusCode: httpStatus.OK,
+        data: property,
+      })
+    );
   } catch (error) {
     const handledError = handleError(error); // Handle the error using the utility
     res.status(500).json({ error: handledError.message });
@@ -76,10 +92,14 @@ const updateProperty = async (req: ProtectedRequest, res: Response) => {
     if (!updatedProperty) {
       return res.status(404).json({ error: "Property not found" });
     }
-    res.status(200).json({
-      message: "Property updated successfully",
-      data: updatedProperty,
-    });
+    res.status(httpStatus.CREATED).json(
+      response({
+        message: "Property Updated  ",
+        status: "OK",
+        statusCode: httpStatus.OK,
+        data: {},
+      })
+    );
   } catch (error) {
     const handledError = handleError(error); // Handle the error using the utility
     res.status(500).json({ error: handledError.message });
@@ -94,7 +114,14 @@ const deleteProperty = async (req: ProtectedRequest, res: Response) => {
     if (!deletedProperty) {
       return res.status(404).json({ error: "Property not found" });
     }
-    res.status(200).json({ message: "Property deleted successfully" });
+    res.status(httpStatus.CREATED).json(
+      response({
+        message: "Property Deleted Successfully",
+        status: "OK",
+        statusCode: httpStatus.OK,
+        data: {},
+      })
+    );
   } catch (error) {
     const handledError = handleError(error); // Handle the error using the utility
     res.status(500).json({ error: handledError.message });
