@@ -18,11 +18,31 @@ const createProperty = async (req: ProtectedRequest, res: Response) => {
   }
 };
 
-// Controller to get all properties
+// Controller to get all properties with filtering and pagination
 const getAllProperties = async (req: ProtectedRequest, res: Response) => {
   try {
-    const properties = await propertyService.getAllProperties();
-    res.status(200).json({ data: properties });
+    const {
+      page = 1,
+      limit = 10,
+      location,
+      type,
+      status,
+      minPrice,
+      maxPrice,
+    } = req.query;
+
+    const options = {
+      page: parseInt(page as string) || 1,
+      limit: parseInt(limit as string) || 10,
+      location: location as string | undefined,
+      type: type as string | undefined,
+      status: status as string | undefined,
+      minPrice: minPrice ? parseFloat(minPrice as string) : undefined,
+      maxPrice: maxPrice ? parseFloat(maxPrice as string) : undefined,
+    };
+
+    const result = await propertyService.getAllProperties(options);
+    res.status(200).json(result);
   } catch (error) {
     const handledError = handleError(error); // Handle the error using the utility
     res.status(500).json({ error: handledError.message });
