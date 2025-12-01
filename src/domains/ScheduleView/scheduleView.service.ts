@@ -1,4 +1,4 @@
-import Property from "./property.model";
+import Property from "./scheduleView.model";
 import redis from "../../config/redis";
 
 interface GetPropertiesOptions {
