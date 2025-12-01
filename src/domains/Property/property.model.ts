@@ -1,6 +1,29 @@
-const mongoose = require("mongoose");
+import mongoose, { Document, Model } from "mongoose";
 
-const propertySchema = new mongoose.Schema(
+export interface IProperty extends Document {
+  title: string;
+  price: number;
+  location: string;
+  type: "residential" | "commercial" | "land" | "luxury";
+  status: "sale" | "rent";
+  bedrooms?: number;
+  bathrooms?: number;
+  area: number;
+  image: string;
+  images?: string[];
+  description: string;
+  features: string[];
+  views: number;
+  agent: {
+    name: string;
+    phone: string;
+    email: string;
+  };
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const propertySchema = new mongoose.Schema<IProperty>(
   {
     title: { type: String, required: true },
     price: { type: Number, required: true },
@@ -32,7 +55,6 @@ const propertySchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Create the model
-const Property = mongoose.model("Property", propertySchema);
+const Property: Model<IProperty> = mongoose.model<IProperty>("Property", propertySchema);
 
 export default Property;

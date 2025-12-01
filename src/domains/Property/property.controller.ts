@@ -44,9 +44,9 @@ const getAllProperties = async (req: ProtectedRequest, res: Response) => {
     };
 
     const result = await propertyService.getAllProperties(options);
-    res.status(httpStatus.CREATED).json(
+    res.status(httpStatus.OK).json(
       response({
-        message: "All Properties ",
+        message: "All Properties",
         status: "OK",
         statusCode: httpStatus.OK,
         data: result,
@@ -66,9 +66,9 @@ const getPropertyById = async (req: ProtectedRequest, res: Response) => {
     if (!property) {
       return res.status(404).json({ error: "Property not found" });
     }
-    res.status(httpStatus.CREATED).json(
+    res.status(httpStatus.OK).json(
       response({
-        message: "Properties ",
+        message: "Property Retrieved",
         status: "OK",
         statusCode: httpStatus.OK,
         data: property,
@@ -92,12 +92,12 @@ const updateProperty = async (req: ProtectedRequest, res: Response) => {
     if (!updatedProperty) {
       return res.status(404).json({ error: "Property not found" });
     }
-    res.status(httpStatus.CREATED).json(
+    res.status(httpStatus.OK).json(
       response({
-        message: "Property Updated  ",
+        message: "Property Updated",
         status: "OK",
         statusCode: httpStatus.OK,
-        data: {},
+        data: updatedProperty,
       })
     );
   } catch (error) {
@@ -114,7 +114,7 @@ const deleteProperty = async (req: ProtectedRequest, res: Response) => {
     if (!deletedProperty) {
       return res.status(404).json({ error: "Property not found" });
     }
-    res.status(httpStatus.CREATED).json(
+    res.status(httpStatus.OK).json(
       response({
         message: "Property Deleted Successfully",
         status: "OK",
