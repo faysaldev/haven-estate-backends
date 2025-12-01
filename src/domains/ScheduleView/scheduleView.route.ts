@@ -3,19 +3,18 @@ import scheduleViewController from "./scheduleView.controller";
 
 const router = Router();
 
-// Get all properties
-router.get("/", scheduleViewController.getAllProperties);
+// Get all schedule views
+router.get("/", scheduleViewController.getAllScheduleViews);
 
-// Get a single property by ID
-router.get("/:id", scheduleViewController.getPropertyById);
+// Get a single schedule view by ID
+router.get("/:id", scheduleViewController.getScheduleViewById);
 
-// Create a new property
-router.post("/", scheduleViewController.createProperty);
+// Create a new schedule view
+router.post("/", scheduleViewController.createScheduleView);
+// Update status of a schedule view by ID
+router.patch("/:id/status", scheduleViewController.updateScheduleViewStatus);
 
-// Update a property by ID
-router.put("/:id", scheduleViewController.updateProperty);
-
-// Delete a property by ID
-router.delete("/:id", scheduleViewController.deleteProperty);
+// Delete a schedule view by ID
+router.delete("/:id", scheduleViewController.deleteScheduleView);
 
 export default router;

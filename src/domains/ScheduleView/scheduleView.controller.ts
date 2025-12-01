@@ -1,18 +1,20 @@
 import { Response } from "express";
 import { ProtectedRequest } from "../../types/protected-request";
-import propertyService from "./scheduleView.service";
+import scheduleViewService from "./scheduleView.service";
 import { handleError } from "../../lib/errorsHandle";
 import httpStatus from "http-status";
 import { response } from "../../lib/response";
 
-// Controller to create a new property
-const createProperty = async (req: ProtectedRequest, res: Response) => {
+// Controller to create a new schedule view
+const createScheduleView = async (req: ProtectedRequest, res: Response) => {
   try {
-    const propertyData = req.body;
-    const property = await propertyService.createProperty(propertyData);
+    const scheduleViewData = req.body;
+    const scheduleView = await scheduleViewService.createScheduleView(
+      scheduleViewData
+    );
     res.status(201).json({
-      message: "Property Created Successfully",
-      data: property,
+      message: "Schedule View Created Successfully",
+      data: scheduleView,
     });
   } catch (error) {
     const handledError = handleError(error); // Handle the error using the utility
@@ -20,33 +22,22 @@ const createProperty = async (req: ProtectedRequest, res: Response) => {
   }
 };
 
-// Controller to get all properties with filtering and pagination
-const getAllProperties = async (req: ProtectedRequest, res: Response) => {
+// Controller to get all schedule views with filtering and pagination
+const getAllScheduleViews = async (req: ProtectedRequest, res: Response) => {
   try {
-    const {
-      page = 1,
-      limit = 10,
-      location,
-      type,
-      status,
-      minPrice,
-      maxPrice,
-    } = req.query;
+    const { page = 1, limit = 10, status, property_id } = req.query;
 
     const options = {
       page: parseInt(page as string) || 1,
       limit: parseInt(limit as string) || 10,
-      location: location as string | undefined,
-      type: type as string | undefined,
       status: status as string | undefined,
-      minPrice: minPrice ? parseFloat(minPrice as string) : undefined,
-      maxPrice: maxPrice ? parseFloat(maxPrice as string) : undefined,
+      property_id: property_id as string | undefined,
     };
 
-    const result = await propertyService.getAllProperties(options);
-    res.status(httpStatus.CREATED).json(
+    const result = await scheduleViewService.getAllScheduleViews(options);
+    res.status(httpStatus.OK).json(
       response({
-        message: "All Properties ",
+        message: "All Schedule Views",
         status: "OK",
         statusCode: httpStatus.OK,
         data: result,
@@ -58,20 +49,22 @@ const getAllProperties = async (req: ProtectedRequest, res: Response) => {
   }
 };
 
-// Controller to get a property by its ID
-const getPropertyById = async (req: ProtectedRequest, res: Response) => {
+// Controller to get a schedule view by its ID
+const getScheduleViewById = async (req: ProtectedRequest, res: Response) => {
   try {
-    const propertyId = req.params.id;
-    const property = await propertyService.getPropertyById(propertyId);
-    if (!property) {
-      return res.status(404).json({ error: "Property not found" });
+    const scheduleViewId = req.params.id;
+    const scheduleView = await scheduleViewService.getScheduleViewById(
+      scheduleViewId
+    );
+    if (!scheduleView) {
+      return res.status(404).json({ error: "Schedule View not found" });
     }
-    res.status(httpStatus.CREATED).json(
+    res.status(httpStatus.OK).json(
       response({
-        message: "Properties ",
+        message: "Schedule View Retrieved",
         status: "OK",
         statusCode: httpStatus.OK,
-        data: property,
+        data: scheduleView,
       })
     );
   } catch (error) {
@@ -80,24 +73,38 @@ const getPropertyById = async (req: ProtectedRequest, res: Response) => {
   }
 };
 
-// Controller to update a property
-const updateProperty = async (req: ProtectedRequest, res: Response) => {
+// Controller to update status of a schedule view
+const updateScheduleViewStatus = async (
+  req: ProtectedRequest,
+  res: Response
+) => {
   try {
-    const propertyId = req.params.id;
-    const propertyData = req.body;
-    const updatedProperty = await propertyService.updateProperty(
-      propertyId,
-      propertyData
-    );
-    if (!updatedProperty) {
-      return res.status(404).json({ error: "Property not found" });
+    const scheduleViewId = req.params.id;
+    const { status } = req.body;
+
+    if (!status) {
+      return res.status(400).json({ error: "Status is required" });
     }
-    res.status(httpStatus.CREATED).json(
+
+    const validStatuses = ["Scheduled", "Completed", "Cancelled"];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ error: "Invalid status value" });
+    }
+
+    const updatedScheduleView =
+      await scheduleViewService.updateScheduleViewStatus(
+        scheduleViewId,
+        status
+      );
+    if (!updatedScheduleView) {
+      return res.status(404).json({ error: "Schedule View not found" });
+    }
+    res.status(httpStatus.OK).json(
       response({
-        message: "Property Updated  ",
+        message: "Schedule View Status Updated",
         status: "OK",
         statusCode: httpStatus.OK,
-        data: {},
+        data: updatedScheduleView,
       })
     );
   } catch (error) {
@@ -106,17 +113,19 @@ const updateProperty = async (req: ProtectedRequest, res: Response) => {
   }
 };
 
-// Controller to delete a property
-const deleteProperty = async (req: ProtectedRequest, res: Response) => {
+// Controller to delete a schedule view
+const deleteScheduleView = async (req: ProtectedRequest, res: Response) => {
   try {
-    const propertyId = req.params.id;
-    const deletedProperty = await propertyService.deleteProperty(propertyId);
-    if (!deletedProperty) {
-      return res.status(404).json({ error: "Property not found" });
+    const scheduleViewId = req.params.id;
+    const deletedScheduleView = await scheduleViewService.deleteScheduleView(
+      scheduleViewId
+    );
+    if (!deletedScheduleView) {
+      return res.status(404).json({ error: "Schedule View not found" });
     }
-    res.status(httpStatus.CREATED).json(
+    res.status(httpStatus.OK).json(
       response({
-        message: "Property Deleted Successfully",
+        message: "Schedule View Deleted Successfully",
         status: "OK",
         statusCode: httpStatus.OK,
         data: {},
@@ -129,9 +138,9 @@ const deleteProperty = async (req: ProtectedRequest, res: Response) => {
 };
 
 export default {
-  createProperty,
-  getAllProperties,
-  getPropertyById,
-  updateProperty,
-  deleteProperty,
+  createScheduleView,
+  getAllScheduleViews,
+  getScheduleViewById,
+  deleteScheduleView,
+  updateScheduleViewStatus,
 };
