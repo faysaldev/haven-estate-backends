@@ -67,6 +67,9 @@ const getAllProperties = async (options: GetPropertiesOptions) => {
 
     // Get filtered and paginated results
     const properties = await Property.find(filter)
+      .select(
+        "_id title location price status type createdAt image bedrooms bathrooms area"
+      )
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 }); // Sort by newest first
