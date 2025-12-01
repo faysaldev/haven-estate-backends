@@ -29,14 +29,18 @@ const incrementViewCount = async (propertyId: string) => {
 };
 
 // Service to create a new property
-const createProperty = async (propertyData: Partial<IProperty>): Promise<IProperty> => {
+const createProperty = async (
+  propertyData: Partial<IProperty>
+): Promise<IProperty> => {
   const newProperty = new Property(propertyData);
   await newProperty.save();
   return newProperty;
 };
 
 // Service to get all properties with filtering and pagination
-const getAllProperties = async (options: GetPropertiesOptions): Promise<{
+const getAllProperties = async (
+  options: GetPropertiesOptions
+): Promise<{
   data: IProperty[];
   pagination: {
     currentPage: number;
@@ -84,13 +88,8 @@ const getAllProperties = async (options: GetPropertiesOptions): Promise<{
       }
     }
 
-    // Calculate skip value for pagination
     const skip = (page - 1) * limit;
-
-    // Get total count for pagination metadata
     const totalCount = await Property.countDocuments(filter);
-
-    // Get filtered and paginated results
     const properties = await Property.find(filter)
       .select(
         "_id title location price status type createdAt image bedrooms bathrooms area views"
@@ -117,9 +116,6 @@ const getAllProperties = async (options: GetPropertiesOptions): Promise<{
 
     return result;
   } catch (error) {
-    console.error("Redis error in getAllProperties:", error);
-    // Fallback to database if Redis fails
-    // Build filter object
     const filter: any = {};
 
     if (location) {
@@ -175,19 +171,16 @@ const getAllProperties = async (options: GetPropertiesOptions): Promise<{
 };
 
 // Service to get a property by its ID with Redis caching and view count increment
-const getPropertyById = async (propertyId: string): Promise<IProperty | null> => {
+const getPropertyById = async (
+  propertyId: string
+): Promise<IProperty | null> => {
   const cacheKey = `property:${propertyId}`;
 
   try {
-    // Try to get property from cache first
     const cachedProperty = await redis.get(cacheKey);
 
     if (cachedProperty) {
-      // Even if cached, we need to increment the view count
       await incrementViewCount(propertyId);
-
-      // After incrementing the view count, we need to fetch the updated property
-      // to return the fresh data with the incremented view count
       const updatedProperty = await Property.findById(propertyId);
 
       // Update the cache with the fresh data
@@ -202,11 +195,8 @@ const getPropertyById = async (propertyId: string): Promise<IProperty | null> =>
     const property = await Property.findById(propertyId);
 
     if (property) {
-      // Increment the view count
       await incrementViewCount(propertyId);
-      // Get the updated property with the new view count
       const updatedProperty = await Property.findById(propertyId);
-      // Cache the property for 1 hour (3600 seconds)
       if (updatedProperty) {
         await redis.setex(cacheKey, 3600, JSON.stringify(updatedProperty));
       }
@@ -216,18 +206,17 @@ const getPropertyById = async (propertyId: string): Promise<IProperty | null> =>
     return property;
   } catch (error) {
     console.error("Redis error in getPropertyById:", error);
-    // Fallback to database if Redis fails
-    // Still increment the view count even if Redis fails
     await incrementViewCount(propertyId);
-    // Wait a bit to ensure the increment operation completes, then fetch the updated property
-    await new Promise(resolve => setTimeout(resolve, 10));
-    // Return the updated property with the new view count
+    await new Promise((resolve) => setTimeout(resolve, 10));
     return Property.findById(propertyId);
   }
 };
 
 // Service to update a property - also update cache
-const updateProperty = async (propertyId: string, propertyData: Partial<IProperty>): Promise<IProperty | null> => {
+const updateProperty = async (
+  propertyId: string,
+  propertyData: Partial<IProperty>
+): Promise<IProperty | null> => {
   const updatedProperty = await Property.findByIdAndUpdate(
     propertyId,
     propertyData,
@@ -247,7 +236,9 @@ const updateProperty = async (propertyId: string, propertyData: Partial<IPropert
 };
 
 // Service to delete a property - also remove from cache
-const deleteProperty = async (propertyId: string): Promise<IProperty | null> => {
+const deleteProperty = async (
+  propertyId: string
+): Promise<IProperty | null> => {
   const deletedProperty = await Property.findByIdAndDelete(propertyId);
 
   if (deletedProperty) {
