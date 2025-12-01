@@ -22,6 +22,7 @@ const propertySchema = new mongoose.Schema(
     images: { type: [String] },
     description: { type: String, required: true },
     features: { type: [String], required: true },
+    views: { type: Number, default: 0 },
     agent: {
       name: { type: String, required: true },
       phone: { type: String, required: true },
