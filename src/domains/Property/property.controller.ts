@@ -8,6 +8,7 @@ import { response } from "../../lib/response";
 // Controller to create a new property
 const createProperty = async (req: ProtectedRequest, res: Response) => {
   try {
+    console.log(req.files);
     const propertyData = req.body;
     const property = await propertyService.createProperty(propertyData);
     res.status(201).json({
