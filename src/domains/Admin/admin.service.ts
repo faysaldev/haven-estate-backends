@@ -2,6 +2,7 @@ import Property from "../Property/property.model";
 import ScheduleView from "../ScheduleView/scheduleView.model";
 import RequestInfo from "../RequestInfo/requestInfo.model";
 import User from "../User/user.model";
+import Admin from "./admin.model";
 
 // Interface for dashboard statistics
 export interface DashboardStats {
@@ -163,8 +164,107 @@ const getTopPropertiesViews = async (): Promise<TopPropertyView[]> => {
   return propertiesWithViews;
 };
 
+// Service to add or update agents
+const addAgents = async (agents: Array<{ name: string; number: string; email: string }>): Promise<any> => {
+  try {
+    // Try to find the existing admin document, create one if it doesn't exist
+    let admin = await Admin.findOne();
+    if (!admin) {
+      admin = await Admin.create({ agents });
+    } else {
+      admin.agents = agents;
+      await admin.save();
+    }
+    return admin;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// Service to get agents
+const getAgents = async (): Promise<any> => {
+  try {
+    // Try to find the existing admin document, create one if it doesn't exist
+    let admin = await Admin.findOne();
+    if (!admin) {
+      admin = await Admin.create({});
+    }
+    return admin;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// Service to update terms and conditions
+const updateTermsAndConditions = async (terms: string): Promise<any> => {
+  try {
+    // Try to find the existing admin document, create one if it doesn't exist
+    let admin = await Admin.findOne();
+    if (!admin) {
+      admin = await Admin.create({ termsAndConditions: terms });
+    } else {
+      admin.termsAndConditions = terms;
+      await admin.save();
+    }
+    return admin;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// Service to update privacy policy
+const updatePrivacyPolicy = async (privacy: string): Promise<any> => {
+  try {
+    // Try to find the existing admin document, create one if it doesn't exist
+    let admin = await Admin.findOne();
+    if (!admin) {
+      admin = await Admin.create({ privacyPolicy: privacy });
+    } else {
+      admin.privacyPolicy = privacy;
+      await admin.save();
+    }
+    return admin;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// Service to get terms and conditions
+const getTermsAndConditions = async (): Promise<any> => {
+  try {
+    // Try to find the existing admin document, create one if it doesn't exist
+    let admin = await Admin.findOne();
+    if (!admin) {
+      admin = await Admin.create({});
+    }
+    return admin;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// Service to get privacy policy
+const getPrivacyPolicy = async (): Promise<any> => {
+  try {
+    // Try to find the existing admin document, create one if it doesn't exist
+    let admin = await Admin.findOne();
+    if (!admin) {
+      admin = await Admin.create({});
+    }
+    return admin;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export default {
   getDashboardStats,
   getRecentActivity,
   getTopPropertiesViews,
+  addAgents,
+  getAgents,
+  updateTermsAndConditions,
+  updatePrivacyPolicy,
+  getTermsAndConditions,
+  getPrivacyPolicy,
 };
