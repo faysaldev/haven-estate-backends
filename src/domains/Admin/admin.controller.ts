@@ -59,42 +59,6 @@ const getTopPropertiesViews = async (req: ProtectedRequest, res: Response) => {
   }
 };
 
-// Controller to add agents
-const addAgents = async (req: ProtectedRequest, res: Response) => {
-  try {
-    const { agents } = req.body;
-    const result = await adminService.addAgents(agents);
-    res.status(httpStatus.OK).json(
-      response({
-        message: "Agents Added Successfully",
-        status: "OK",
-        statusCode: httpStatus.OK,
-        data: result,
-      })
-    );
-  } catch (error) {
-    const handledError = handleError(error);
-    res.status(500).json({ error: handledError.message });
-  }
-};
-
-// Controller to get agents
-const getAgents = async (req: ProtectedRequest, res: Response) => {
-  try {
-    const result = await adminService.getAgents();
-    res.status(httpStatus.OK).json(
-      response({
-        message: "Agents Retrieved Successfully",
-        status: "OK",
-        statusCode: httpStatus.OK,
-        data: result.agents,
-      })
-    );
-  } catch (error) {
-    const handledError = handleError(error);
-    res.status(500).json({ error: handledError.message });
-  }
-};
 
 // Controller to update terms and conditions
 const updateTermsAndConditions = async (req: ProtectedRequest, res: Response) => {
@@ -174,8 +138,6 @@ export default {
   getDashboardStats,
   getRecentActivity,
   getTopPropertiesViews,
-  addAgents,
-  getAgents,
   updateTermsAndConditions,
   updatePrivacyPolicy,
   getTermsAndConditions,
