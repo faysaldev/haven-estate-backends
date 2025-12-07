@@ -20,6 +20,6 @@ const io = setUpSocketIO(server);
 const backendIp = process.env.BACKEND_IP || "localhost";
 const port = process.env.PORT || 3000;
 
-server.listen(Number(port), backendIp, () => {
-  console.log(`Server is running at http://${backendIp}:${port}`);
+server.listen(Number(port), "localhost", () => {
+  console.log(`Server is running at http://localhost:${port}`);
 });
