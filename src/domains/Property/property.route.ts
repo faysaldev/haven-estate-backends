@@ -4,7 +4,7 @@ import userFileUploadMiddleware from "../../middlewares/fileUpload.middleware";
 
 const router = Router();
 
-const USER_PICTURES = "../../../public/uploads";
+const USER_PICTURES = "./uploads";
 
 // Get all properties
 router.get("/", propertyController.getAllProperties);

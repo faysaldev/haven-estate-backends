@@ -10,10 +10,10 @@ const createProperty = async (req: ProtectedRequest, res: Response) => {
   try {
     console.log(req.files);
     const propertyData = req.body;
-    const property = await propertyService.createProperty(propertyData);
+    // const property = await propertyService.createProperty(propertyData);
     res.status(201).json({
       message: "Property Created Successfully",
-      data: property,
+      data: {},
     });
   } catch (error) {
     const handledError = handleError(error); // Handle the error using the utility
