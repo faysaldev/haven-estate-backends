@@ -59,9 +59,9 @@ const getAllProperties = async (
   try {
     // Try to get cached result first
     const cachedResult = await redis.get(cacheKey);
-    if (cachedResult) {
-      return JSON.parse(cachedResult);
-    }
+    // if (cachedResult) {
+    //   return JSON.parse(cachedResult);
+    // }
 
     // Build filter object
     const filter: any = {};
@@ -92,7 +92,7 @@ const getAllProperties = async (
     const totalCount = await Property.countDocuments(filter);
     const properties = await Property.find(filter)
       .select(
-        "_id title location price status type createdAt image bedrooms bathrooms area views"
+        "_id title location price status type createdAt images bedrooms bathrooms area views"
       )
       .skip(skip)
       .limit(limit)

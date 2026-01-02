@@ -9,8 +9,17 @@ import { response } from "../../lib/response";
 const createProperty = async (req: ProtectedRequest, res: Response) => {
   try {
     console.log(req.files);
+
+    if (req.files) {
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+      const imageFiles = files["image"] || [];
+      const imagePaths = imageFiles.map((file) => file.path);
+      req.body.images = imagePaths;
+    }
+
     const propertyData = req.body;
-    // const property = await propertyService.createProperty(propertyData);
+    console.log(propertyData);
+    const property = await propertyService.createProperty(propertyData);
     res.status(201).json({
       message: "Property Created Successfully",
       data: {},
