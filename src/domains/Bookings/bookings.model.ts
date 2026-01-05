@@ -3,6 +3,7 @@ import mongoose, { Document, Model } from "mongoose";
 export interface IBooking extends Document {
   id: string;
   property: mongoose.Types.ObjectId;
+  author: mongoose.Types.ObjectId;
   date: Date;
   status: "pending" | "confirmed" | "completed" | "cancelled";
   amount: number;
@@ -15,6 +16,11 @@ export interface IBooking extends Document {
 
 const bookingSchema = new mongoose.Schema<IBooking>(
   {
+    author: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     id: { type: String, required: true, unique: true },
     property: {
       type: mongoose.Schema.Types.ObjectId,

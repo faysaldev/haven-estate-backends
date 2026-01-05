@@ -4,7 +4,6 @@ import { handleError } from "../../lib/errorsHandle";
 import httpStatus from "http-status";
 import { response } from "../../lib/response";
 import { ProtectedRequest } from "../../types/protected-request";
-import { ProtectedUser } from "../../types/types";
 
 const getAllUsers = async (req: Request, res: Response) => {
   try {

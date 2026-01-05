@@ -1,6 +1,7 @@
 import mongoose, { Document, Model } from "mongoose";
 
 export interface IScheduleView extends Document {
+  author: mongoose.Types.ObjectId;
   name: string;
   email: string;
   phone: string;
@@ -14,6 +15,11 @@ export interface IScheduleView extends Document {
 
 const scheduleViewSchema = new mongoose.Schema<IScheduleView>(
   {
+    author: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     name: { type: String, required: true },
     email: { type: String, required: true },
     phone: { type: String, required: true },
@@ -33,5 +39,8 @@ const scheduleViewSchema = new mongoose.Schema<IScheduleView>(
   { timestamps: true }
 );
 
-const ScheduleView: Model<IScheduleView> = mongoose.model<IScheduleView>("ScheduleView", scheduleViewSchema);
+const ScheduleView: Model<IScheduleView> = mongoose.model<IScheduleView>(
+  "ScheduleView",
+  scheduleViewSchema
+);
 export default ScheduleView;

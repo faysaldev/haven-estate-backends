@@ -1,16 +1,19 @@
 import { Router } from "express";
 import bookingController from "./bookings.controller";
+import { authMiddleware } from "../../middlewares/auth.middleware";
 
 const router = Router();
 
 // Get all bookings
 router.get("/", bookingController.getAllBookings);
+// get my bookings
+router.get("/my-bookings", authMiddleware, bookingController.getMyBookings);
 
 // Get a single booking by ID
 router.get("/:id", bookingController.getBookingById);
 
 // Create a new booking
-router.post("/", bookingController.createBooking);
+router.post("/", authMiddleware, bookingController.createBooking);
 
 // Update status of a booking by ID
 router.patch("/:id/status", bookingController.updateBookingStatus);

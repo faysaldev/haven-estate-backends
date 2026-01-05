@@ -8,10 +8,9 @@ import { response } from "../../lib/response";
 // Controller to create a new booking
 const createBooking = async (req: ProtectedRequest, res: Response) => {
   try {
-    const bookingData = req.body;
-    const booking = await bookingService.createBooking(
-      bookingData
-    );
+    const { user } = req;
+    const bookingData = { author: user?._id as string, ...req.body };
+    const booking = await bookingService.createBooking(bookingData);
     res.status(201).json({
       message: "Booking Created Successfully",
       data: booking,
@@ -48,14 +47,39 @@ const getAllBookings = async (req: ProtectedRequest, res: Response) => {
     res.status(500).json({ error: handledError.message });
   }
 };
+// Controller to get MY bookings with filtering and pagination
+const getMyBookings = async (req: ProtectedRequest, res: Response) => {
+  try {
+    const { page = 1, limit = 10, status, property } = req.query;
+
+    const options = {
+      page: parseInt(page as string) || 1,
+      limit: parseInt(limit as string) || 10,
+      status: status as string | undefined,
+      property: property as string | undefined,
+      userId: req.user?._id as string,
+    };
+
+    const result = await bookingService.getMyBookings(options);
+    res.status(httpStatus.OK).json(
+      response({
+        message: "My Bookings",
+        status: "OK",
+        statusCode: httpStatus.OK,
+        data: result,
+      })
+    );
+  } catch (error) {
+    const handledError = handleError(error); // Handle the error using the utility
+    res.status(500).json({ error: handledError.message });
+  }
+};
 
 // Controller to get a booking by its ID
 const getBookingById = async (req: ProtectedRequest, res: Response) => {
   try {
     const bookingId = req.params.id;
-    const booking = await bookingService.getBookingById(
-      bookingId
-    );
+    const booking = await bookingService.getBookingById(bookingId);
     if (!booking) {
       return res.status(404).json({ error: "Booking not found" });
     }
@@ -74,10 +98,7 @@ const getBookingById = async (req: ProtectedRequest, res: Response) => {
 };
 
 // Controller to update status of a booking
-const updateBookingStatus = async (
-  req: ProtectedRequest,
-  res: Response
-) => {
+const updateBookingStatus = async (req: ProtectedRequest, res: Response) => {
   try {
     const bookingId = req.params.id;
     const { status } = req.body;
@@ -91,11 +112,10 @@ const updateBookingStatus = async (
       return res.status(400).json({ error: "Invalid status value" });
     }
 
-    const updatedBooking =
-      await bookingService.updateBookingStatus(
-        bookingId,
-        status as "pending" | "confirmed" | "completed" | "cancelled"
-      );
+    const updatedBooking = await bookingService.updateBookingStatus(
+      bookingId,
+      status as "pending" | "confirmed" | "completed" | "cancelled"
+    );
     if (!updatedBooking) {
       return res.status(404).json({ error: "Booking not found" });
     }
@@ -114,10 +134,7 @@ const updateBookingStatus = async (
 };
 
 // Controller to update a booking
-const updateBooking = async (
-  req: ProtectedRequest,
-  res: Response
-) => {
+const updateBooking = async (req: ProtectedRequest, res: Response) => {
   try {
     const bookingId = req.params.id;
     const updateData = req.body;
@@ -147,9 +164,7 @@ const updateBooking = async (
 const deleteBooking = async (req: ProtectedRequest, res: Response) => {
   try {
     const bookingId = req.params.id;
-    const deletedBooking = await bookingService.deleteBooking(
-      bookingId
-    );
+    const deletedBooking = await bookingService.deleteBooking(bookingId);
     if (!deletedBooking) {
       return res.status(404).json({ error: "Booking not found" });
     }
@@ -174,4 +189,5 @@ export default {
   deleteBooking,
   updateBookingStatus,
   updateBooking,
+  getMyBookings,
 };

@@ -9,9 +9,10 @@ import { response } from "../../lib/response";
 const createScheduleView = async (req: ProtectedRequest, res: Response) => {
   try {
     const scheduleViewData = req.body;
-    const scheduleView = await scheduleViewService.createScheduleView(
-      scheduleViewData
-    );
+    const scheduleView = await scheduleViewService.createScheduleView({
+      author: req.user?._id as string,
+      ...scheduleViewData,
+    });
     res.status(201).json({
       message: "Schedule View Created Successfully",
       data: scheduleView,
@@ -35,6 +36,33 @@ const getAllScheduleViews = async (req: ProtectedRequest, res: Response) => {
     };
 
     const result = await scheduleViewService.getAllScheduleViews(options);
+    res.status(httpStatus.OK).json(
+      response({
+        message: "All Schedule Views",
+        status: "OK",
+        statusCode: httpStatus.OK,
+        data: result,
+      })
+    );
+  } catch (error) {
+    const handledError = handleError(error); // Handle the error using the utility
+    res.status(500).json({ error: handledError.message });
+  }
+};
+// Controller to get all schedule views with filtering and pagination
+const getMyScheduleViews = async (req: ProtectedRequest, res: Response) => {
+  try {
+    const { page = 1, limit = 10, status, property_id } = req.query;
+
+    const options = {
+      page: parseInt(page as string) || 1,
+      limit: parseInt(limit as string) || 10,
+      status: status as string | undefined,
+      property_id: property_id as string | undefined,
+      userId: req.user?._id as string,
+    };
+
+    const result = await scheduleViewService.getMyScheduleViews(options);
     res.status(httpStatus.OK).json(
       response({
         message: "All Schedule Views",
@@ -143,4 +171,5 @@ export default {
   getScheduleViewById,
   deleteScheduleView,
   updateScheduleViewStatus,
+  getMyScheduleViews,
 };

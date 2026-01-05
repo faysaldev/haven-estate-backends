@@ -6,6 +6,7 @@ interface GetBookingOptions {
   limit: number;
   status?: string;
   property?: string;
+  userId?: string;
 }
 
 // Service to create a new booking
@@ -15,7 +16,7 @@ const createBooking = async (
   try {
     // Generate a unique ID if not provided
     const bookingId = bookingData.id || `BK${Date.now()}`;
-
+    console.log(bookingData);
     const booking = new Booking({
       ...bookingData,
       id: bookingId,
@@ -85,11 +86,67 @@ const getAllBookings = async (
     throw new Error(`Failed to fetch bookings: ${(error as Error).message}`);
   }
 };
+// Service to get all bookings with filtering and pagination
+const getMyBookings = async (
+  options: GetBookingOptions
+): Promise<{
+  data: IBooking[];
+  pagination: {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+    itemsPerPage: number;
+  };
+}> => {
+  try {
+    const { page, limit, status, property, userId } = options;
+
+    // Build filter object
+    const filter: any = { author: userId };
+
+    if (status) {
+      filter.status = status;
+    }
+
+    if (property) {
+      filter.property = property;
+    }
+
+    // Calculate skip value for pagination
+    const skip = (page - 1) * limit;
+
+    // Get total count for pagination metadata
+    const totalCount = await Booking.countDocuments(filter);
+
+    // Get filtered and paginated results
+    const bookings = await Booking.find(filter)
+      .populate(
+        "property",
+        "title location price status type createdAt image bedrooms bathrooms area"
+      )
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 }); // Sort by newest first
+
+    // Calculate total pages
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return {
+      data: bookings,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalItems: totalCount,
+        itemsPerPage: limit,
+      },
+    };
+  } catch (error) {
+    throw new Error(`Failed to fetch bookings: ${(error as Error).message}`);
+  }
+};
 
 // Service to get a booking by its ID
-const getBookingById = async (
-  bookingId: string
-): Promise<IBooking | null> => {
+const getBookingById = async (bookingId: string): Promise<IBooking | null> => {
   try {
     return await Booking.findOne({ id: bookingId }).populate(
       "property",
@@ -118,7 +175,9 @@ const updateBookingStatus = async (
       "title location price status type createdAt image bedrooms bathrooms area"
     );
   } catch (error) {
-    throw new Error(`Failed to update booking status: ${(error as Error).message}`);
+    throw new Error(
+      `Failed to update booking status: ${(error as Error).message}`
+    );
   }
 };
 
@@ -145,9 +204,7 @@ const updateBooking = async (
 };
 
 // Service to delete a booking
-const deleteBooking = async (
-  bookingId: string
-): Promise<IBooking | null> => {
+const deleteBooking = async (bookingId: string): Promise<IBooking | null> => {
   try {
     return await Booking.findOneAndDelete({ id: bookingId });
   } catch (error) {
@@ -162,4 +219,5 @@ export default {
   deleteBooking,
   updateBookingStatus,
   updateBooking,
+  getMyBookings,
 };
