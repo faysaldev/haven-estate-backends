@@ -1,4 +1,5 @@
 import connectionToDb from "./config/db";
+import { BACKEND_IP, PORT } from "./config/ENV";
 import setUpSocketIO from "./config/socketio";
 import app from "./server";
 import dotenv from "dotenv";
@@ -17,9 +18,9 @@ const server = http.createServer(app);
 const io = setUpSocketIO(server);
 
 //using the post and ip over here
-const backendIp = process.env.BACKEND_IP || "localhost";
+const backendIp = process.env.BACKEND_IP;
 const port = process.env.PORT || 3000;
 
-server.listen(Number(port), "localhost", () => {
-  console.log(`Server is running at http://localhost:${port}`);
+server.listen(PORT, BACKEND_IP, () => {
+  console.log(`Server is running at http://${BACKEND_IP}:${PORT}`);
 });
