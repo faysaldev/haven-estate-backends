@@ -9,9 +9,10 @@ import { response } from "../../lib/response";
 const createRequestInfo = async (req: ProtectedRequest, res: Response) => {
   try {
     const requestInfoData = req.body;
-    const requestInfo = await requestInfoService.createRequestInfo(
-      requestInfoData
-    );
+    const requestInfo = await requestInfoService.createRequestInfo({
+      ...requestInfoData,
+      author: req.user?._id as string,
+    });
     res.status(201).json({
       message: "Request Info Created Successfully",
       data: requestInfo,
@@ -35,6 +36,33 @@ const getAllRequestInfo = async (req: ProtectedRequest, res: Response) => {
     };
 
     const result = await requestInfoService.getAllRequestInfo(options);
+    res.status(httpStatus.OK).json(
+      response({
+        message: "All Request Info",
+        status: "OK",
+        statusCode: httpStatus.OK,
+        data: result,
+      })
+    );
+  } catch (error) {
+    const handledError = handleError(error); // Handle the error using the utility
+    res.status(500).json({ error: handledError.message });
+  }
+};
+// Controller to get all request info with filtering and pagination
+const getMyRequestInfo = async (req: ProtectedRequest, res: Response) => {
+  try {
+    const { page = 1, limit = 10, status, property_id } = req.query;
+
+    const options = {
+      page: parseInt(page as string) || 1,
+      limit: parseInt(limit as string) || 10,
+      status: status as string | undefined,
+      property_id: property_id as string | undefined,
+      userId: req.user?._id as string,
+    };
+
+    const result = await requestInfoService.getMyRequestInfo(options);
     res.status(httpStatus.OK).json(
       response({
         message: "All Request Info",
@@ -142,4 +170,5 @@ export default {
   getRequestInfoById,
   deleteRequestInfo,
   updateRequestInfoStatus,
+  getMyRequestInfo,
 };

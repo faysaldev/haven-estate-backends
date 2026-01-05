@@ -5,6 +5,7 @@ interface GetScheduleViewOptions {
   limit: number;
   status?: string;
   property_id?: string;
+  userId?: string;
 }
 
 // Service to create a new schedule view
@@ -82,10 +83,10 @@ const getMyScheduleViews = async (
     itemsPerPage: number;
   };
 }> => {
-  const { page, limit, status, property_id } = options;
+  const { page, limit, status, property_id, userId } = options;
 
   // Build filter object
-  const filter: any = {};
+  const filter: any = { author: userId };
 
   if (status) {
     filter.status = status;

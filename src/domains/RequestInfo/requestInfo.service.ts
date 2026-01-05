@@ -5,6 +5,7 @@ interface GetRequestInfoOptions {
   limit: number;
   status?: string;
   property_id?: string;
+  userId?: string;
 }
 
 // Service to create a new request info
@@ -32,6 +33,60 @@ const getAllRequestInfo = async (
 
   // Build filter object
   const filter: any = {};
+
+  if (status) {
+    filter.status = status;
+  }
+
+  if (property_id) {
+    filter.property_id = property_id;
+  }
+
+  // Calculate skip value for pagination
+  const skip = (page - 1) * limit;
+
+  // Get total count for pagination metadata
+  const totalCount = await RequestInfo.countDocuments(filter);
+
+  // Get filtered and paginated results
+  const requestInfoList = await RequestInfo.find(filter)
+    .populate(
+      "property_id",
+      "title location price status type createdAt image bedrooms bathrooms area"
+    )
+    .skip(skip)
+    .limit(limit)
+    .sort({ createdAt: -1 }); // Sort by newest first
+
+  // Calculate total pages
+  const totalPages = Math.ceil(totalCount / limit);
+
+  return {
+    data: requestInfoList,
+    pagination: {
+      currentPage: page,
+      totalPages,
+      totalItems: totalCount,
+      itemsPerPage: limit,
+    },
+  };
+};
+// Service to get all request info with filtering and pagination
+const getMyRequestInfo = async (
+  options: GetRequestInfoOptions
+): Promise<{
+  data: IRequestInfo[];
+  pagination: {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+    itemsPerPage: number;
+  };
+}> => {
+  const { page, limit, status, property_id, userId } = options;
+
+  // Build filter object
+  const filter: any = { author: userId };
 
   if (status) {
     filter.status = status;
@@ -109,4 +164,5 @@ export default {
   getRequestInfoById,
   deleteRequestInfo,
   updateRequestInfoStatus,
+  getMyRequestInfo,
 };

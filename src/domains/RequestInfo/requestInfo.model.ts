@@ -6,6 +6,7 @@ export interface IRequestInfo extends Document {
   phone: string;
   message: string;
   property_id: mongoose.Types.ObjectId;
+  author: mongoose.Types.ObjectId;
   status: "unread" | "read" | "archived";
   createdAt: Date;
   updatedAt: Date;
@@ -13,6 +14,11 @@ export interface IRequestInfo extends Document {
 
 const requestInfoSchema = new mongoose.Schema<IRequestInfo>(
   {
+    author: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     name: { type: String, required: true },
     email: { type: String, required: true },
     phone: { type: String, required: true },
