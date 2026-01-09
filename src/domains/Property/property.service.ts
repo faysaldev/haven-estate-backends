@@ -321,7 +321,10 @@ const getPropertyById = async (
     }
 
     // If not in cache, get from database
-    const property = await Property.findById(propertyId);
+    const property = await Property.findById(propertyId).populate(
+      "agent",
+      "name number email"
+    );
 
     if (property) {
       await incrementViewCount(propertyId);
