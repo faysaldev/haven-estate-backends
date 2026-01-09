@@ -8,6 +8,7 @@ const USER_PROPERTIES = "./public/uploads";
 
 // Get all properties
 router.get("/", propertyController.getAllProperties);
+router.get("/admin", propertyController.getAllAdminProperties);
 
 // Get a single property by ID
 router.get("/:id", propertyController.getPropertyById);
@@ -22,7 +23,13 @@ router.post(
 );
 
 // Update a property by ID
-router.put("/:id", propertyController.updateProperty);
+router.put(
+  "/:id",
+  userFileUploadMiddleware(USER_PROPERTIES).fields([
+    { name: "image", maxCount: 8 },
+  ]),
+  propertyController.updateProperty
+);
 
 // Delete a property by ID
 router.delete("/:id", propertyController.deleteProperty);

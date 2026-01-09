@@ -67,6 +67,43 @@ const getAllProperties = async (req: ProtectedRequest, res: Response) => {
     res.status(500).json({ error: handledError.message });
   }
 };
+// Controller to get all properties with filtering and pagination
+const getAllAdminProperties = async (req: ProtectedRequest, res: Response) => {
+  try {
+    const {
+      page = 1,
+      limit = 10,
+      location,
+      type,
+      status,
+      minPrice,
+      maxPrice,
+    } = req.query;
+
+    const options = {
+      page: parseInt(page as string) || 1,
+      limit: parseInt(limit as string) || 10,
+      location: location as string | undefined,
+      type: type as string | undefined,
+      status: status as string | undefined,
+      minPrice: minPrice ? parseFloat(minPrice as string) : undefined,
+      maxPrice: maxPrice ? parseFloat(maxPrice as string) : undefined,
+    };
+
+    const result = await propertyService.getAllAdminProperties(options);
+    res.status(httpStatus.OK).json(
+      response({
+        message: "All Properties",
+        status: "OK",
+        statusCode: httpStatus.OK,
+        data: result,
+      })
+    );
+  } catch (error) {
+    const handledError = handleError(error); // Handle the error using the utility
+    res.status(500).json({ error: handledError.message });
+  }
+};
 
 // Controller to get a property by its ID
 const getPropertyById = async (req: ProtectedRequest, res: Response) => {
@@ -93,6 +130,14 @@ const getPropertyById = async (req: ProtectedRequest, res: Response) => {
 // Controller to update a property
 const updateProperty = async (req: ProtectedRequest, res: Response) => {
   try {
+    if (req.files) {
+      const files = req.files as {
+        [fieldname: string]: Express.Multer.File[];
+      };
+      const imageFiles = files["image"] || [];
+      const imagePaths = imageFiles.map((file) => file.path);
+      req.body.images = imagePaths;
+    }
     const propertyId = req.params.id;
     const propertyData = req.body;
     const updatedProperty = await propertyService.updateProperty(
@@ -144,4 +189,5 @@ export default {
   getPropertyById,
   updateProperty,
   deleteProperty,
+  getAllAdminProperties,
 };

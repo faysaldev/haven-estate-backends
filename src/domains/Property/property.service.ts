@@ -169,6 +169,135 @@ const getAllProperties = async (
     };
   }
 };
+// Service to get all properties with filtering and pagination
+const getAllAdminProperties = async (
+  options: GetPropertiesOptions
+): Promise<{
+  data: IProperty[];
+  pagination: {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+    itemsPerPage: number;
+  };
+}> => {
+  const { page, limit, location, type, status, minPrice, maxPrice } = options;
+
+  // Create cache key based on query parameters
+  const cacheKey = `properties:${page}:${limit}:${location || "all"}:${
+    type || "all"
+  }:${status || "all"}:${minPrice || "none"}:${maxPrice || "none"}`;
+
+  try {
+    // Try to get cached result first
+    const cachedResult = await redis.get(cacheKey);
+    // if (cachedResult) {
+    //   return JSON.parse(cachedResult);
+    // }
+
+    // Build filter object
+    const filter: any = {};
+
+    if (location) {
+      filter.location = { $regex: location, $options: "i" }; // Case insensitive search
+    }
+
+    if (type) {
+      filter.type = type;
+    }
+
+    if (status) {
+      filter.status = status;
+    }
+
+    if (minPrice !== undefined || maxPrice !== undefined) {
+      filter.price = {};
+      if (minPrice !== undefined) {
+        filter.price.$gte = minPrice;
+      }
+      if (maxPrice !== undefined) {
+        filter.price.$lte = maxPrice;
+      }
+    }
+
+    const skip = (page - 1) * limit;
+    const totalCount = await Property.countDocuments(filter);
+    const properties = await Property.find(filter)
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 }); // Sort by newest first
+
+    // Calculate total pages
+    const totalPages = Math.ceil(totalCount / limit);
+
+    const result = {
+      data: properties,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalItems: totalCount,
+        itemsPerPage: limit,
+      },
+    };
+
+    // Cache the result for 30 minutes (1800 seconds)
+    await redis.setex(cacheKey, 1800, JSON.stringify(result));
+
+    return result;
+  } catch (error) {
+    const filter: any = {};
+
+    if (location) {
+      filter.location = { $regex: location, $options: "i" }; // Case insensitive search
+    }
+
+    if (type) {
+      filter.type = type;
+    }
+
+    if (status) {
+      filter.status = status;
+    }
+
+    if (minPrice !== undefined || maxPrice !== undefined) {
+      filter.price = {};
+      if (minPrice !== undefined) {
+        filter.price.$gte = minPrice;
+      }
+      if (maxPrice !== undefined) {
+        filter.price.$lte = maxPrice;
+      }
+    }
+
+    // Calculate skip value for pagination
+    const skip = (page - 1) * limit;
+
+    // Get total count for pagination metadata
+    const totalCount = await Property.countDocuments(filter);
+
+    // Get filtered and paginated results
+    const properties = await Property.find(filter)
+      .select(
+        "_id title location price status type createdAt image bedrooms bathrooms area views"
+      )
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 }); // Sort by newest first
+
+    // Calculate total pages
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return {
+      data: properties,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalItems: totalCount,
+        itemsPerPage: limit,
+      },
+    };
+  }
+};
 
 // Service to get a property by its ID with Redis caching and view count increment
 const getPropertyById = async (
@@ -257,4 +386,5 @@ export default {
   updateProperty,
   deleteProperty,
   incrementViewCount,
+  getAllAdminProperties,
 };
