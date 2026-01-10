@@ -8,6 +8,7 @@ const router = Router();
 const USER_PICTURES = "./public/uploads/users";
 
 router.get("/self/in", authMiddleware, userController.userDetails);
+router.patch("/self/update", authMiddleware, userController.userDetailsUpdated);
 router.post(
   "/upload-single",
   authMiddleware,

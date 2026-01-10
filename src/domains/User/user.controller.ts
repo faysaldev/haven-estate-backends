@@ -40,6 +40,27 @@ const userDetails = async (req: ProtectedRequest, res: Response) => {
     res.status(500).json({ error: handledError.message });
   }
 };
+const userDetailsUpdated = async (req: ProtectedRequest, res: Response) => {
+  try {
+    const { user } = req;
+    const users = await userService.userDetailsUpdated(
+      user?._id as string,
+      req.body
+    );
+
+    res.status(httpStatus.CREATED).json(
+      response({
+        message: "User Details",
+        status: "OK",
+        statusCode: httpStatus.OK,
+        data: users!,
+      })
+    );
+  } catch (error) {
+    const handledError = handleError(error); // Handle the error using the utility
+    res.status(500).json({ error: handledError.message });
+  }
+};
 
 const singleFileUpload = async (req: ProtectedRequest, res: Response) => {
   try {
@@ -81,6 +102,7 @@ const userController = {
   userDetails,
   singleFileUpload,
   multipleFileUpload,
+  userDetailsUpdated,
 };
 
 export default userController;

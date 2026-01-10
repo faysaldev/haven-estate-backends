@@ -9,10 +9,14 @@ const userDetails = async (userId: string) => {
     "email name phoneNumber role image isEmailVerified"
   );
 };
+const userDetailsUpdated = async (userId: string, details: any) => {
+  return await User.findByIdAndUpdate(userId, details);
+};
 
 const userService = {
   getAllUsers,
   userDetails,
+  userDetailsUpdated,
 };
 
 export default userService;
