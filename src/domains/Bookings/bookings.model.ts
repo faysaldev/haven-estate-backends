@@ -27,7 +27,7 @@ const bookingSchema = new mongoose.Schema<IBooking>(
       ref: "Property",
       required: true,
     },
-    date: { type: Date, required: true },
+    date: { type: Date, default: Date.now() },
     status: {
       type: String,
       enum: ["pending", "confirmed", "completed", "cancelled"],

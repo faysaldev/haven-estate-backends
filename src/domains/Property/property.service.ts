@@ -309,38 +309,36 @@ const getPropertyById = async (
     const cachedProperty = await redis.get(cacheKey);
 
     if (cachedProperty) {
+      // If property is in cache, increment view count and return cached property
       await incrementViewCount(propertyId);
-      const updatedProperty = await Property.findById(propertyId);
-
-      // Update the cache with the fresh data
-      if (updatedProperty) {
-        await redis.setex(cacheKey, 3600, JSON.stringify(updatedProperty));
-      }
-
-      return updatedProperty;
+      return JSON.parse(cachedProperty);
     }
 
-    // If not in cache, get from database
+    // If not in cache, get from database with agent populated
     const property = await Property.findById(propertyId).populate(
       "agent",
       "name number email"
     );
 
     if (property) {
+      // Increment view count after fetching the property
       await incrementViewCount(propertyId);
-      const updatedProperty = await Property.findById(propertyId);
-      if (updatedProperty) {
-        await redis.setex(cacheKey, 3600, JSON.stringify(updatedProperty));
-      }
-      return updatedProperty;
+
+      // Update the cache with the fresh data including populated agent
+      await redis.setex(cacheKey, 3600, JSON.stringify(property));
+
+      return property;
     }
 
     return property;
   } catch (error) {
     console.error("Redis error in getPropertyById:", error);
+    // In case of Redis error, fetch from database with populated agent
     await incrementViewCount(propertyId);
-    await new Promise((resolve) => setTimeout(resolve, 10));
-    return Property.findById(propertyId);
+    return Property.findById(propertyId).populate(
+      "agent",
+      "name number email"
+    );
   }
 };
 
