@@ -1,5 +1,7 @@
 import Property, { IProperty } from "./property.model";
 import redis from "../../config/redis";
+import Booking from "../Bookings/bookings.model";
+import ScheduleView from "../ScheduleView/scheduleView.model";
 
 interface GetPropertiesOptions {
   page: number;
@@ -177,34 +179,90 @@ const featuredProperties = async () => {
   try {
     // Try to get cached result first
     const cachedResult = await redis.get(cacheKey);
-    // if (cachedResult) {
-    //   return JSON.parse(cachedResult);
-    // }
+    if (cachedResult) {
+      return JSON.parse(cachedResult);
+    }
+
+    // Aggregate properties with their booking and schedule view counts
+    const propertiesWithActivity = await Property.aggregate([
+      {
+        $lookup: {
+          from: "bookings", // collection name for Bookings
+          localField: "_id",
+          foreignField: "property",
+          as: "bookingCount",
+        },
+      },
+      {
+        $lookup: {
+          from: "scheduleviews", // collection name for ScheduleView
+          localField: "_id",
+          foreignField: "property_id",
+          as: "scheduleViewCount",
+        },
+      },
+      {
+        $addFields: {
+          totalActivity: {
+            $add: [{ $size: "$bookingCount" }, { $size: "$scheduleViewCount" }],
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          title: 1,
+          location: 1,
+          price: 1,
+          status: 1,
+          type: 1,
+          createdAt: 1,
+          images: 1,
+          bedrooms: 1,
+          bathrooms: 1,
+          area: 1,
+          views: 1,
+        },
+      },
+      { $sort: { totalActivity: -1, createdAt: -1 } }, // Sort by activity first, then by newest
+      { $limit: 5 }, // Return maximum 5 properties
+    ]);
+
+    const result = {
+      data: propertiesWithActivity,
+    };
+
+    // Cache the result for 20 minutes (1200 seconds)
+    await redis.setex(cacheKey, 1200, JSON.stringify(result));
+
+    return result;
+  } catch (error) {
+    // Fallback to returning the most recently created properties if aggregation fails
     const properties = await Property.find()
       .select(
         "_id title location price status type createdAt images bedrooms bathrooms area views"
       )
-      .sort({ createdAt: -1 }); // Sort by newest first
+      .sort({ createdAt: -1 })
+      .limit(5); // Limit to 5 properties
 
-    const result = {
-      data: properties,
-    };
-
-    // Cache the result for 30 minutes (1800 seconds)
-    await redis.setex(cacheKey, 1800, JSON.stringify(result));
-
-    return result;
-  } catch (error) {
-    const filter: any = {};
-    // Get filtered and paginated results
-    const properties = await Property.find(filter)
-      .select(
-        "_id title location price status type createdAt image bedrooms bathrooms area views"
-      )
-      .sort({ createdAt: -1 }); // Sort by newest first
+    // Format the result to match the aggregation output structure
+    const formattedProperties = properties.map((property) => ({
+      _id: property._id,
+      title: property.title,
+      location: property.location,
+      price: property.price,
+      status: property.status,
+      type: property.type,
+      createdAt: property.createdAt,
+      images: property.images,
+      bedrooms: property.bedrooms,
+      bathrooms: property.bathrooms,
+      area: property.area,
+      views: property.views,
+    }));
 
     return {
-      data: properties,
+      data: formattedProperties,
     };
   }
 };
