@@ -184,7 +184,7 @@ const featuredProperties = async () => {
     }
 
     // Aggregate properties with their booking and schedule view counts
-    const propertiesWithActivity = await Property.aggregate([
+    let propertiesWithActivity = await Property.aggregate([
       {
         $lookup: {
           from: "bookings", // collection name for Bookings
@@ -228,6 +228,37 @@ const featuredProperties = async () => {
       { $limit: 5 }, // Return maximum 5 properties
     ]);
 
+    // If we have fewer than 5 properties, supplement with random properties
+    if (propertiesWithActivity.length < 5) {
+      const neededProperties = 5 - propertiesWithActivity.length;
+      const existingIds = propertiesWithActivity.map(prop => prop._id);
+
+      // Find random properties that are not already in the activity results
+      const randomProperties = await Property.aggregate([
+        { $match: { _id: { $nin: existingIds } } },
+        { $sample: { size: neededProperties } },
+        {
+          $project: {
+            _id: 1,
+            title: 1,
+            location: 1,
+            price: 1,
+            status: 1,
+            type: 1,
+            createdAt: 1,
+            images: 1,
+            bedrooms: 1,
+            bathrooms: 1,
+            area: 1,
+            views: 1,
+          },
+        }
+      ]);
+
+      // Combine the activity-based properties with random properties
+      propertiesWithActivity = [...propertiesWithActivity, ...randomProperties];
+    }
+
     const result = {
       data: propertiesWithActivity,
     };
@@ -237,32 +268,29 @@ const featuredProperties = async () => {
 
     return result;
   } catch (error) {
-    // Fallback to returning the most recently created properties if aggregation fails
-    const properties = await Property.find()
-      .select(
-        "_id title location price status type createdAt images bedrooms bathrooms area views"
-      )
-      .sort({ createdAt: -1 })
-      .limit(5); // Limit to 5 properties
-
-    // Format the result to match the aggregation output structure
-    const formattedProperties = properties.map((property) => ({
-      _id: property._id,
-      title: property.title,
-      location: property.location,
-      price: property.price,
-      status: property.status,
-      type: property.type,
-      createdAt: property.createdAt,
-      images: property.images,
-      bedrooms: property.bedrooms,
-      bathrooms: property.bathrooms,
-      area: property.area,
-      views: property.views,
-    }));
+    // Fallback to returning random properties if aggregation fails
+    const properties = await Property.aggregate([
+      { $sample: { size: 5 } }, // Get 5 random properties
+      {
+        $project: {
+          _id: 1,
+          title: 1,
+          location: 1,
+          price: 1,
+          status: 1,
+          type: 1,
+          createdAt: 1,
+          images: 1,
+          bedrooms: 1,
+          bathrooms: 1,
+          area: 1,
+          views: 1,
+        },
+      }
+    ]);
 
     return {
-      data: formattedProperties,
+      data: properties,
     };
   }
 };
