@@ -163,17 +163,7 @@ const updateBookingStatus = async (
   status: "pending" | "confirmed" | "completed" | "cancelled"
 ): Promise<IBooking | null> => {
   try {
-    return await Booking.findOneAndUpdate(
-      { id: bookingId },
-      { status },
-      {
-        new: true, // Return the updated document
-        runValidators: true, // Ensure validators are run
-      }
-    ).populate(
-      "property",
-      "title location price status type createdAt image bedrooms bathrooms area"
-    );
+    return await Booking.findOneAndUpdate({ id: bookingId }, { status });
   } catch (error) {
     throw new Error(
       `Failed to update booking status: ${(error as Error).message}`

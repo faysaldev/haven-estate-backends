@@ -100,7 +100,7 @@ const getBookingById = async (req: ProtectedRequest, res: Response) => {
 // Controller to update status of a booking
 const updateBookingStatus = async (req: ProtectedRequest, res: Response) => {
   try {
-    const bookingId = req.params.id;
+    const id = req.params.id;
     const { status } = req.body;
 
     if (!status) {
@@ -113,7 +113,7 @@ const updateBookingStatus = async (req: ProtectedRequest, res: Response) => {
     }
 
     const updatedBooking = await bookingService.updateBookingStatus(
-      bookingId,
+      id,
       status as "pending" | "confirmed" | "completed" | "cancelled"
     );
     if (!updatedBooking) {
