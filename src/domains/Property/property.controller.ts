@@ -9,7 +9,7 @@ import { uploadMultipleToCloudinary } from "../../lib/utils/cloudinary";
 // Controller to create a new property
 const createProperty = async (req: ProtectedRequest, res: Response) => {
   try {
-    console.log('Received files:', req.files);
+    console.log("Received files:", req.files);
 
     if (req.files) {
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
@@ -20,15 +20,18 @@ const createProperty = async (req: ProtectedRequest, res: Response) => {
         try {
           // Upload images to Cloudinary
           const uploadResults = await uploadMultipleToCloudinary(imageFiles);
-          console.log('Cloudinary upload results:', uploadResults);
+          console.log("Cloudinary upload results:", uploadResults);
           const imageUrls = uploadResults.map((result) => result.secure_url);
           req.body.images = imageUrls;
         } catch (uploadError) {
-          console.error('Cloudinary upload error:', uploadError);
+          console.error("Cloudinary upload error:", uploadError);
           return res.status(500).json({
             success: false,
-            error: 'Failed to upload images to Cloudinary',
-            details: uploadError instanceof Error ? uploadError.message : 'Unknown upload error'
+            error: "Failed to upload images to Cloudinary",
+            details:
+              uploadError instanceof Error
+                ? uploadError.message
+                : "Unknown upload error",
           });
         }
       }
@@ -42,12 +45,12 @@ const createProperty = async (req: ProtectedRequest, res: Response) => {
       data: property,
     });
   } catch (error) {
-    console.error('Error in createProperty:', error);
+    console.error("Error in createProperty:", error);
     const handledError = handleError(error); // Handle the error using the utility
     res.status(500).json({
       success: false,
       error: handledError.message,
-      details: error instanceof Error ? error.stack : 'Unknown error'
+      details: error instanceof Error ? error.stack : "Unknown error",
     });
   }
 };
@@ -79,6 +82,23 @@ const getAllProperties = async (req: ProtectedRequest, res: Response) => {
     res.status(httpStatus.OK).json(
       response({
         message: "All Properties",
+        status: "OK",
+        statusCode: httpStatus.OK,
+        data: result,
+      })
+    );
+  } catch (error) {
+    const handledError = handleError(error); // Handle the error using the utility
+    res.status(500).json({ error: handledError.message });
+  }
+};
+
+const featuredProperties = async (req: ProtectedRequest, res: Response) => {
+  try {
+    const result = await propertyService.featuredProperties();
+    res.status(httpStatus.OK).json(
+      response({
+        message: "Featured Properties",
         status: "OK",
         statusCode: httpStatus.OK,
         data: result,
@@ -159,19 +179,24 @@ const updateProperty = async (req: ProtectedRequest, res: Response) => {
       const imageFiles = files["image"] || [];
 
       if (imageFiles.length > 0) {
-        console.log(`Uploading ${imageFiles.length} images to Cloudinary for update`);
+        console.log(
+          `Uploading ${imageFiles.length} images to Cloudinary for update`
+        );
         try {
           // Upload images to Cloudinary
           const uploadResults = await uploadMultipleToCloudinary(imageFiles);
-          console.log('Cloudinary upload results for update:', uploadResults);
-          const imageUrls = uploadResults.map(result => result.secure_url);
+          console.log("Cloudinary upload results for update:", uploadResults);
+          const imageUrls = uploadResults.map((result) => result.secure_url);
           req.body.images = imageUrls;
         } catch (uploadError) {
-          console.error('Cloudinary upload error during update:', uploadError);
+          console.error("Cloudinary upload error during update:", uploadError);
           return res.status(500).json({
             success: false,
-            error: 'Failed to upload images to Cloudinary',
-            details: uploadError instanceof Error ? uploadError.message : 'Unknown upload error'
+            error: "Failed to upload images to Cloudinary",
+            details:
+              uploadError instanceof Error
+                ? uploadError.message
+                : "Unknown upload error",
           });
         }
       }
@@ -194,12 +219,12 @@ const updateProperty = async (req: ProtectedRequest, res: Response) => {
       })
     );
   } catch (error) {
-    console.error('Error in updateProperty:', error);
+    console.error("Error in updateProperty:", error);
     const handledError = handleError(error); // Handle the error using the utility
     res.status(500).json({
       success: false,
       error: handledError.message,
-      details: error instanceof Error ? error.stack : 'Unknown error'
+      details: error instanceof Error ? error.stack : "Unknown error",
     });
   }
 };
@@ -233,4 +258,5 @@ export default {
   updateProperty,
   deleteProperty,
   getAllAdminProperties,
+  featuredProperties,
 };

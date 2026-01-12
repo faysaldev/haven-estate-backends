@@ -169,6 +169,45 @@ const getAllProperties = async (
     };
   }
 };
+// Service to get Featured properties with filtering and pagination
+const featuredProperties = async () => {
+  // Create cache key based on query parameters
+  const cacheKey = `featured_properties_home`;
+
+  try {
+    // Try to get cached result first
+    const cachedResult = await redis.get(cacheKey);
+    // if (cachedResult) {
+    //   return JSON.parse(cachedResult);
+    // }
+    const properties = await Property.find()
+      .select(
+        "_id title location price status type createdAt images bedrooms bathrooms area views"
+      )
+      .sort({ createdAt: -1 }); // Sort by newest first
+
+    const result = {
+      data: properties,
+    };
+
+    // Cache the result for 30 minutes (1800 seconds)
+    await redis.setex(cacheKey, 1800, JSON.stringify(result));
+
+    return result;
+  } catch (error) {
+    const filter: any = {};
+    // Get filtered and paginated results
+    const properties = await Property.find(filter)
+      .select(
+        "_id title location price status type createdAt image bedrooms bathrooms area views"
+      )
+      .sort({ createdAt: -1 }); // Sort by newest first
+
+    return {
+      data: properties,
+    };
+  }
+};
 // Service to get all properties with filtering and pagination
 const getAllAdminProperties = async (
   options: GetPropertiesOptions
@@ -335,10 +374,7 @@ const getPropertyById = async (
     console.error("Redis error in getPropertyById:", error);
     // In case of Redis error, fetch from database with populated agent
     await incrementViewCount(propertyId);
-    return Property.findById(propertyId).populate(
-      "agent",
-      "name number email"
-    );
+    return Property.findById(propertyId).populate("agent", "name number email");
   }
 };
 
@@ -388,4 +424,5 @@ export default {
   deleteProperty,
   incrementViewCount,
   getAllAdminProperties,
+  featuredProperties,
 };
