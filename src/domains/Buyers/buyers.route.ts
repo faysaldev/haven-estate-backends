@@ -10,4 +10,6 @@ router.get(
   buyersController.getRecentActivity
 );
 
+router.post("/send_email", buyersController.sendingMailtoOwner);
+
 export default router;
