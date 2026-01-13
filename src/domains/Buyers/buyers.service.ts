@@ -1,9 +1,6 @@
-import Property from "../Property/property.model";
 import ScheduleView from "../ScheduleView/scheduleView.model";
 import RequestInfo from "../RequestInfo/requestInfo.model";
 import Booking from "../Bookings/bookings.model";
-import User from "../User/user.model";
-
 // Interface for recent activity
 interface RecentActivity {
   id: string;
@@ -15,7 +12,6 @@ interface RecentActivity {
 
 // Service to get recent activities for a specific user
 const getRecentActivity = async (userId: string): Promise<RecentActivity[]> => {
-  // Get recent schedule views, request info, bookings, and properties for the specific user
   const [recentScheduleViews, recentRequestInfo, recentBookings] =
     await Promise.all([
       ScheduleView.find({ author: userId })
@@ -31,7 +27,6 @@ const getRecentActivity = async (userId: string): Promise<RecentActivity[]> => {
         .lean()
         .exec(),
     ]);
-
   // Combine and sort all activities by date
   const allActivities: RecentActivity[] = [];
 
@@ -68,8 +63,6 @@ const getRecentActivity = async (userId: string): Promise<RecentActivity[]> => {
       } - Status: ${booking.status}`,
     });
   });
-
-  // Sort all activities by timestamp (newest first) and limit to 10
   return allActivities
     .sort(
       (a, b) =>
