@@ -1,8 +1,5 @@
+// import redis from "../../config/redis";
 import Property, { IProperty } from "./property.model";
-import redis from "../../config/redis";
-import Booking from "../Bookings/bookings.model";
-import ScheduleView from "../ScheduleView/scheduleView.model";
-
 interface GetPropertiesOptions {
   page: number;
   limit: number;
@@ -24,7 +21,8 @@ const incrementViewCount = async (propertyId: string) => {
 
     // Invalidate the cached property since we've updated the view count
     const cacheKey = `property:${propertyId}`;
-    await redis.del(cacheKey);
+    // for Redis
+    // await redis.del(cacheKey);
   } catch (error) {
     console.error("Error incrementing view count:", error);
   }
@@ -59,8 +57,8 @@ const getAllProperties = async (
   }:${status || "all"}:${minPrice || "none"}:${maxPrice || "none"}`;
 
   try {
-    // Try to get cached result first
-    const cachedResult = await redis.get(cacheKey);
+    // TODO: redis Try to get cached result first
+    // const cachedResult = await redis.get(cacheKey);
     // if (cachedResult) {
     //   return JSON.parse(cachedResult);
     // }
@@ -113,8 +111,8 @@ const getAllProperties = async (
       },
     };
 
-    // Cache the result for 30 minutes (1800 seconds)
-    await redis.setex(cacheKey, 1800, JSON.stringify(result));
+    // TODO: redis Cache the result for 30 minutes (1800 seconds)
+    // await redis.setex(cacheKey, 1800, JSON.stringify(result));
 
     return result;
   } catch (error) {
@@ -177,11 +175,11 @@ const featuredProperties = async () => {
   const cacheKey = `featured_properties_home`;
 
   try {
-    // Try to get cached result first
-    const cachedResult = await redis.get(cacheKey);
-    if (cachedResult) {
-      return JSON.parse(cachedResult);
-    }
+    // TODO: redis Try to get cached result first
+    // const cachedResult = await redis.get(cacheKey);
+    // if (cachedResult) {
+    //   return JSON.parse(cachedResult);
+    // }
 
     // Aggregate properties with their booking and schedule view counts
     let propertiesWithActivity = await Property.aggregate([
@@ -231,7 +229,7 @@ const featuredProperties = async () => {
     // If we have fewer than 5 properties, supplement with random properties
     if (propertiesWithActivity.length < 5) {
       const neededProperties = 5 - propertiesWithActivity.length;
-      const existingIds = propertiesWithActivity.map(prop => prop._id);
+      const existingIds = propertiesWithActivity.map((prop) => prop._id);
 
       // Find random properties that are not already in the activity results
       const randomProperties = await Property.aggregate([
@@ -252,7 +250,7 @@ const featuredProperties = async () => {
             area: 1,
             views: 1,
           },
-        }
+        },
       ]);
 
       // Combine the activity-based properties with random properties
@@ -263,8 +261,8 @@ const featuredProperties = async () => {
       data: propertiesWithActivity,
     };
 
-    // Cache the result for 20 minutes (1200 seconds)
-    await redis.setex(cacheKey, 1200, JSON.stringify(result));
+    // TODO: redis Cache the result for 20 minutes (1200 seconds)
+    // await redis.setex(cacheKey, 1200, JSON.stringify(result));
 
     return result;
   } catch (error) {
@@ -286,7 +284,7 @@ const featuredProperties = async () => {
           area: 1,
           views: 1,
         },
-      }
+      },
     ]);
 
     return {
@@ -314,8 +312,8 @@ const getAllAdminProperties = async (
   }:${status || "all"}:${minPrice || "none"}:${maxPrice || "none"}`;
 
   try {
-    // Try to get cached result first
-    const cachedResult = await redis.get(cacheKey);
+    // TODO: redis Try to get cached result first
+    // const cachedResult = await redis.get(cacheKey);
     // if (cachedResult) {
     //   return JSON.parse(cachedResult);
     // }
@@ -365,8 +363,8 @@ const getAllAdminProperties = async (
       },
     };
 
-    // Cache the result for 30 minutes (1800 seconds)
-    await redis.setex(cacheKey, 1800, JSON.stringify(result));
+    // TODO: redis Cache the result for 30 minutes (1800 seconds)
+    // await redis.setex(cacheKey, 1800, JSON.stringify(result));
 
     return result;
   } catch (error) {
@@ -431,13 +429,13 @@ const getPropertyById = async (
   const cacheKey = `property:${propertyId}`;
 
   try {
-    const cachedProperty = await redis.get(cacheKey);
+    // TODO: redis
+    // const cachedProperty = await redis.get(cacheKey);
 
-    if (cachedProperty) {
-      // If property is in cache, increment view count and return cached property
-      await incrementViewCount(propertyId);
-      return JSON.parse(cachedProperty);
-    }
+    // if (cachedProperty) {
+    //   await incrementViewCount(propertyId);
+    //   return JSON.parse(cachedProperty);
+    // }
 
     // If not in cache, get from database with agent populated
     const property = await Property.findById(propertyId).populate(
@@ -449,8 +447,8 @@ const getPropertyById = async (
       // Increment view count after fetching the property
       await incrementViewCount(propertyId);
 
-      // Update the cache with the fresh data including populated agent
-      await redis.setex(cacheKey, 3600, JSON.stringify(property));
+      // TODO: redis Update the cache with the fresh data including populated agent
+      // await redis.setex(cacheKey, 3600, JSON.stringify(property));
 
       return property;
     }
@@ -481,7 +479,8 @@ const updateProperty = async (
   if (updatedProperty) {
     // Invalidate the cached property
     const cacheKey = `property:${propertyId}`;
-    await redis.del(cacheKey);
+    // TODO: redis
+    // await redis.del(cacheKey);
   }
 
   return updatedProperty;
@@ -494,9 +493,9 @@ const deleteProperty = async (
   const deletedProperty = await Property.findByIdAndDelete(propertyId);
 
   if (deletedProperty) {
-    // Remove the property from cache
+    // TODO: redis Remove the property from cache
     const cacheKey = `property:${propertyId}`;
-    await redis.del(cacheKey);
+    // await redis.del(cacheKey);
   }
 
   return deletedProperty;
