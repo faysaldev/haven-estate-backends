@@ -1,6 +1,7 @@
 import Property from "../Property/property.model";
 import ScheduleView from "../ScheduleView/scheduleView.model";
 import RequestInfo from "../RequestInfo/requestInfo.model";
+import Booking from "../Bookings/bookings.model";
 import User from "../User/user.model";
 
 // Interface for recent activity
@@ -12,42 +13,29 @@ interface RecentActivity {
   details: string;
 }
 
-// Service to get recent activities
+// Service to get recent activities for a specific user
 const getRecentActivity = async (userId: string): Promise<RecentActivity[]> => {
-  // Get recent schedule views, request info, and properties
-  const [recentScheduleViews, recentRequestInfo, recentProperties] =
+  // Get recent schedule views, request info, bookings, and properties for the specific user
+  const [recentScheduleViews, recentRequestInfo, recentBookings] =
     await Promise.all([
-      ScheduleView.find().populate("property_id", "title").lean().exec(),
-      RequestInfo.find().populate("property_id", "title").lean().exec(),
-      Property.find().lean().exec(),
+      ScheduleView.find({ author: userId })
+        .populate("property_id", "title")
+        .lean()
+        .exec(),
+      RequestInfo.find({ author: userId })
+        .populate("property_id", "title")
+        .lean()
+        .exec(),
+      Booking.find({ author: userId })
+        .populate("property", "title")
+        .lean()
+        .exec(),
     ]);
-
-  // Get the 5 most recent of each
-  const scheduleViewActivities = recentScheduleViews
-    .sort(
-      (a: any, b: any) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    )
-    .slice(0, 5);
-
-  const requestInfoActivities = recentRequestInfo
-    .sort(
-      (a: any, b: any) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    )
-    .slice(0, 5);
-
-  const propertyActivities = recentProperties
-    .sort(
-      (a: any, b: any) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    )
-    .slice(0, 5);
 
   // Combine and sort all activities by date
   const allActivities: RecentActivity[] = [];
 
-  scheduleViewActivities.forEach((view: any) => {
+  recentScheduleViews.forEach((view: any) => {
     allActivities.push({
       id: view._id.toString(),
       action: "Schedule View Created",
@@ -59,7 +47,7 @@ const getRecentActivity = async (userId: string): Promise<RecentActivity[]> => {
     });
   });
 
-  requestInfoActivities.forEach((request: any) => {
+  recentRequestInfo.forEach((request: any) => {
     allActivities.push({
       id: request._id.toString(),
       action: "Info Request Created",
@@ -69,13 +57,15 @@ const getRecentActivity = async (userId: string): Promise<RecentActivity[]> => {
     });
   });
 
-  propertyActivities.forEach((property: any) => {
+  recentBookings.forEach((booking: any) => {
     allActivities.push({
-      id: property._id.toString(),
-      action: "Property Added",
-      user: "Admin",
-      timestamp: property.createdAt,
-      details: `New property: ${property.title}`,
+      id: booking._id.toString(),
+      action: "Booking Created",
+      user: booking.name || "Unknown User",
+      timestamp: booking.createdAt,
+      details: `Booking for property: ${
+        booking.property?.title || "N/A"
+      } - Status: ${booking.status}`,
     });
   });
 
@@ -87,6 +77,7 @@ const getRecentActivity = async (userId: string): Promise<RecentActivity[]> => {
     )
     .slice(0, 10);
 };
+
 export default {
   getRecentActivity,
 };
