@@ -13,7 +13,7 @@ interface RecentActivity {
 }
 
 // Service to get recent activities
-const getRecentActivity = async (): Promise<RecentActivity[]> => {
+const getRecentActivity = async (userId: string): Promise<RecentActivity[]> => {
   // Get recent schedule views, request info, and properties
   const [recentScheduleViews, recentRequestInfo, recentProperties] =
     await Promise.all([

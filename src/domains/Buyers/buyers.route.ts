@@ -1,7 +1,7 @@
 import { Router } from "express";
-import adminController from "./buyers.controller";
+import buyersController from "./buyers.controller";
 const router = Router();
 // Get recent activities
-router.get("/recent-activity", adminController.getRecentActivity);
+router.get("/recent-activity", buyersController.getRecentActivity);
 
 export default router;

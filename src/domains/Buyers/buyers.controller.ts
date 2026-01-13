@@ -8,7 +8,9 @@ import { response } from "../../lib/response";
 // Controller to get recent activities
 const getRecentActivity = async (req: ProtectedRequest, res: Response) => {
   try {
-    const activities = await buyersService.getRecentActivity();
+    const activities = await buyersService.getRecentActivity(
+      req.user?._id as string
+    );
     res.status(httpStatus.OK).json(
       response({
         message: "Recent Activities Retrieved",
