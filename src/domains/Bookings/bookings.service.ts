@@ -9,14 +9,34 @@ interface GetBookingOptions {
   userId?: string;
 }
 
-// Service to create a new booking
-const createBooking = async (
-  bookingData: Partial<IBooking>
-): Promise<IBooking> => {
+// Service to get Checking my bookings if it's exists
+const isBookingExist = async (userId: string, property: string) => {
   try {
-    // Generate a unique ID if not provided
+    // Build filter object
+    const filter: any = { author: userId, property: property };
+    const bookings = await Booking.find(filter);
+    return bookings;
+  } catch (error) {
+    throw new Error(`Failed to fetch bookings: ${(error as Error).message}`);
+  }
+};
+
+// Service to create a new booking
+const createBooking = async (bookingData: any) => {
+  try {
+    // Check if a booking already exists for this user and property
+    const bookingExisting = await isBookingExist(
+      bookingData?.author,
+      bookingData?.property
+    );
+
+    // If booking already exists, throw an error
+    if (bookingExisting.length > 0) {
+      throw new Error("You have already booked this property");
+    }
+
+    console.log(bookingExisting);
     const bookingId = bookingData.id || `BK${Date.now()}`;
-    console.log(bookingData);
     const booking = new Booking({
       ...bookingData,
       id: bookingId,
@@ -24,6 +44,10 @@ const createBooking = async (
 
     return await booking.save();
   } catch (error) {
+    // If it's our custom error about duplicate booking, re-throw it
+    if ((error as Error).message === "You have already booked this property") {
+      throw error;
+    }
     throw new Error(`Failed to create booking: ${(error as Error).message}`);
   }
 };

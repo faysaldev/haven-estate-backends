@@ -11,9 +11,12 @@ const createBooking = async (req: ProtectedRequest, res: Response) => {
     const { user } = req;
     const bookingData = { author: user?._id as string, ...req.body };
     const booking = await bookingService.createBooking(bookingData);
+
+    // console.log(booking);
+
     res.status(201).json({
       message: "Booking Created Successfully",
-      data: booking,
+      data: {},
     });
   } catch (error) {
     const handledError = handleError(error); // Handle the error using the utility
