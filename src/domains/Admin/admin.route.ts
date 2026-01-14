@@ -3,6 +3,7 @@ import adminController from "./admin.controller";
 import agentController from "../Agent/agent.controller";
 import { createAgentSchema } from "../Agent/agent.validation";
 import { zodValidate } from "../../middlewares/validations/zodValidation.middleware";
+import { authMiddleware } from "../../middlewares/auth.middleware";
 
 const router = Router();
 
@@ -19,6 +20,7 @@ router.get("/top-properties-views", adminController.getTopPropertiesViews);
 router.post(
   "/agents",
   zodValidate(createAgentSchema, "body"),
+  authMiddleware,
   agentController.addAgents
 );
 
