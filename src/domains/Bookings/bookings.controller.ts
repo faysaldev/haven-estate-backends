@@ -4,7 +4,10 @@ import bookingService from "./bookings.service";
 import { handleError } from "../../lib/errorsHandle";
 import httpStatus from "http-status";
 import { response } from "../../lib/response";
-import { createStripePaymentLink } from "../../lib/Payments/stripe.healper";
+import {
+  createStripePaymentLink,
+  checkPaymentStatusHelper,
+} from "../../lib/Payments/stripe.healper";
 
 // Controller to create a new booking
 const createBooking = async (req: ProtectedRequest, res: Response) => {
@@ -109,24 +112,6 @@ const getBookingById = async (req: ProtectedRequest, res: Response) => {
     res.status(500).json({ error: handledError.message });
   }
 };
-// Controller to get a booking by its ID
-const checkPaymentStatus = async (req: ProtectedRequest, res: Response) => {
-  try {
-    const sessionId = req.params.sessionId;
-
-    res.status(httpStatus.OK).json(
-      response({
-        message: "Booking Retrieved",
-        status: "OK",
-        statusCode: httpStatus.OK,
-        data: {},
-      })
-    );
-  } catch (error) {
-    const handledError = handleError(error); // Handle the error using the utility
-    res.status(500).json({ error: handledError.message });
-  }
-};
 
 // Controller to update status of a booking
 const updateBookingStatus = async (req: ProtectedRequest, res: Response) => {
@@ -205,6 +190,33 @@ const deleteBooking = async (req: ProtectedRequest, res: Response) => {
         status: "OK",
         statusCode: httpStatus.OK,
         data: {},
+      })
+    );
+  } catch (error) {
+    const handledError = handleError(error); // Handle the error using the utility
+    res.status(500).json({ error: handledError.message });
+  }
+};
+
+// Controller to check payment status
+const checkPaymentStatus = async (req: ProtectedRequest, res: Response) => {
+  try {
+    const sessionId = req.params.sessionId;
+
+    // Check the payment status using the Stripe helper
+    const paymentStatus = await checkPaymentStatusHelper(sessionId);
+
+    // Log the values as requested
+    console.log("Payment Status:", paymentStatus.status);
+    console.log("Metadata:", paymentStatus.metadata);
+    console.log("Session Data:", paymentStatus.sessionData);
+
+    res.status(httpStatus.OK).json(
+      response({
+        message: "Payment Status Retrieved",
+        status: "OK",
+        statusCode: httpStatus.OK,
+        data: paymentStatus,
       })
     );
   } catch (error) {

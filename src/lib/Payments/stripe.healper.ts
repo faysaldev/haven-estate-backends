@@ -60,4 +60,32 @@ const createStripePaymentLink = async (paymentData: PaymentData) => {
   }
 };
 
-export { createStripePaymentLink };
+/**
+ * Checks the status of a Stripe payment session
+ * @param sessionId - The ID of the Stripe checkout session to check
+ * @returns Payment status and metadata
+ */
+const checkPaymentStatusHelper = async (sessionId: string) => {
+  try {
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+
+    return {
+      status: session.payment_status,
+      metadata: session.metadata,
+      sessionData: {
+        id: session.id,
+        amount_total: session.amount_total,
+        currency: session.currency,
+        customer_email: session.customer_details?.email,
+        payment_intent: session.payment_intent,
+      },
+    };
+  } catch (error) {
+    console.error("Error checking payment status:", error);
+    throw new Error(
+      `Failed to check payment status: ${(error as Error).message}`
+    );
+  }
+};
+
+export { createStripePaymentLink, checkPaymentStatusHelper };
