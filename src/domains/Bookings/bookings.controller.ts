@@ -8,6 +8,7 @@ import {
   createStripePaymentLink,
   checkPaymentStatusHelper,
 } from "../../lib/Payments/stripe.healper";
+import { sendEmail } from "../../lib/mail.service";
 
 // Controller to create a new booking
 const createBooking = async (req: ProtectedRequest, res: Response) => {
@@ -15,8 +16,6 @@ const createBooking = async (req: ProtectedRequest, res: Response) => {
     const { user } = req;
     const bookingData = { author: user?._id as string, ...req.body };
     const booking = await bookingService.createBooking(bookingData);
-    console.log(booking);
-
     if (booking) {
       const { author, amount, _id, name } = booking;
       const paymentLink = await createStripePaymentLink({
@@ -25,10 +24,9 @@ const createBooking = async (req: ProtectedRequest, res: Response) => {
         booking_id: typeof _id === "string" ? _id : _id.toString(),
         name,
       });
-      console.log(paymentLink);
       res.status(201).json({
         message: "Booking Created Successfully",
-        data: {},
+        data: { url: paymentLink },
       });
     }
   } catch (error) {
@@ -211,12 +209,24 @@ const checkPaymentStatus = async (req: ProtectedRequest, res: Response) => {
     console.log("Metadata:", paymentStatus.metadata);
     console.log("Session Data:", paymentStatus.sessionData);
 
+    if (paymentStatus.status == "paid") {
+      const updatedBooking = await bookingService.updateBookingAfterPayment(
+        paymentStatus?.metadata?.booking_id!,
+        "confirmed"
+      );
+      await sendEmail(
+        paymentStatus?.sessionData?.customer_email!,
+        `Payment Received Successful - $${paymentStatus?.sessionData?.amount_total}`,
+        `Thanks For your Order We had Received Your order. Our agents will contact with  you sooner with your contact number`
+      );
+    }
+
     res.status(httpStatus.OK).json(
       response({
         message: "Payment Status Retrieved",
         status: "OK",
         statusCode: httpStatus.OK,
-        data: paymentStatus,
+        data: {},
       })
     );
   } catch (error) {
