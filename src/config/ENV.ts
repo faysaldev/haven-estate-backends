@@ -1,4 +1,5 @@
 import dotenv from "dotenv";
+import { string } from "joi";
 dotenv.config();
 export const BACKEND_IP: string = process.env.BACKEND_IP as string;
 export const PORT: number = parseInt(process.env.PORT as string, 10);
@@ -10,3 +11,6 @@ export const CLOUDINARY_API_KEY: string = process.env
   .CLOUDINARY_API_KEY as string;
 export const CLOUDINARY_API_SECRET: string = process.env
   .CLOUDINARY_API_SECRET as string;
+export const STRIPE_SECRET_KEY: string = process.env
+  .STRIPE_SECRET_KEY as string;
+export const FRONT_END_URL: string = process.env.FRONT_END_URL as string;

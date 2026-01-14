@@ -4,6 +4,7 @@ import bookingService from "./bookings.service";
 import { handleError } from "../../lib/errorsHandle";
 import httpStatus from "http-status";
 import { response } from "../../lib/response";
+import { createStripePaymentLink } from "../../lib/Payments/stripe.healper";
 
 // Controller to create a new booking
 const createBooking = async (req: ProtectedRequest, res: Response) => {
@@ -13,10 +14,20 @@ const createBooking = async (req: ProtectedRequest, res: Response) => {
     const booking = await bookingService.createBooking(bookingData);
     console.log(booking);
 
-    res.status(201).json({
-      message: "Booking Created Successfully",
-      data: {},
-    });
+    if (booking) {
+      const { author, amount, _id, name } = booking;
+      const paymentLink = await createStripePaymentLink({
+        amount,
+        author_id: typeof author === "string" ? author : author.toString(),
+        booking_id: typeof _id === "string" ? _id : _id.toString(),
+        name,
+      });
+      console.log(paymentLink);
+      res.status(201).json({
+        message: "Booking Created Successfully",
+        data: {},
+      });
+    }
   } catch (error) {
     const handledError = handleError(error); // Handle the error using the utility
     res.status(500).json({ error: handledError.message });

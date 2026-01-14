@@ -1,0 +1,63 @@
+import Stripe from "stripe";
+import { FRONT_END_URL, STRIPE_SECRET_KEY } from "../../config/ENV";
+import { ObjectId } from "mongoose";
+
+const stripe = new Stripe(STRIPE_SECRET_KEY);
+
+interface PaymentData {
+  amount: number; // Amount in cents (smallest currency unit)
+  name: string;
+  author_id: string | ObjectId;
+  booking_id: string | ObjectId;
+}
+
+/**
+ * Creates a Stripe payment link for property booking
+ * @param paymentData - Object containing amount, name, author_id, booking_id, and optional URLs
+ * @returns Payment link URL
+ */
+const createStripePaymentLink = async (paymentData: PaymentData) => {
+  try {
+    const { amount, name, author_id, booking_id } = paymentData;
+
+    console.log(paymentData);
+    const successUrl = `${FRONT_END_URL}/bookings/success`;
+    const cancelUrl = `${FRONT_END_URL}/bookings/cancel`;
+    // Create a Stripe Checkout Session
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      line_items: [
+        {
+          price_data: {
+            currency: "usd", // You can make this configurable if needed
+            product_data: {
+              name: name,
+              metadata: {
+                author_id: author_id.toString(),
+                booking_id: booking_id.toString(),
+              },
+            },
+            unit_amount: amount * 100, // Amount in cents
+          },
+          quantity: 1,
+        },
+      ],
+      mode: "payment",
+      success_url: successUrl,
+      cancel_url: cancelUrl,
+      metadata: {
+        author_id: author_id.toString(),
+        booking_id: booking_id.toString(),
+      },
+    });
+
+    return session.url!;
+  } catch (error) {
+    console.error("Error creating Stripe payment link:", error);
+    throw new Error(
+      `Failed to create payment link: ${(error as Error).message}`
+    );
+  }
+};
+
+export { createStripePaymentLink };
