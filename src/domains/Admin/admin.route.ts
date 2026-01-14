@@ -1,6 +1,8 @@
 import { Router } from "express";
 import adminController from "./admin.controller";
 import agentController from "../Agent/agent.controller";
+import { createAgentSchema } from "../Agent/agent.validation";
+import { zodValidate } from "../../middlewares/validations/zodValidation.middleware";
 
 const router = Router();
 
@@ -14,7 +16,11 @@ router.get("/recent-activity", adminController.getRecentActivity);
 router.get("/top-properties-views", adminController.getTopPropertiesViews);
 
 // Add agents - directly access from agents model
-router.post("/agents", agentController.addAgents);
+router.post(
+  "/agents",
+  zodValidate(createAgentSchema, "body"),
+  agentController.addAgents
+);
 
 // Get agents - directly access from agents model
 router.get("/agents", agentController.getAgents);
