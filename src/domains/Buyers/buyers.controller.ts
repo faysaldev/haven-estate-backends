@@ -5,6 +5,7 @@ import { handleError } from "../../lib/errorsHandle";
 import httpStatus from "http-status";
 import { response } from "../../lib/response";
 import { sendEmail } from "../../lib/mail.service";
+import { contactPageTemplates } from "../../lib/templates/contacts";
 
 // Controller to get recent activities
 const getRecentActivity = async (req: ProtectedRequest, res: Response) => {
@@ -27,10 +28,12 @@ const getRecentActivity = async (req: ProtectedRequest, res: Response) => {
 };
 // Controller to get Sending Email
 const sendingMailtoOwner = async (req: ProtectedRequest, res: Response) => {
+  const { name, email, phone, message } = req.body;
+  const templateBody = contactPageTemplates(name, phone, email, message);
   const sendingEmail = await sendEmail(
-    "fmridha@gmail.com",
-    "Verify Your Email Address",
-    "email text"
+    email,
+    "Thanks For Message to Haven Estate" + name,
+    templateBody
   );
   try {
     res.status(httpStatus.OK).json(
