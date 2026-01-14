@@ -1,5 +1,5 @@
 export interface ProtectedUser {
-  _id: string; // Explicitly typing _id
+  _id: string;
   name: string;
   email: string;
   password: string;

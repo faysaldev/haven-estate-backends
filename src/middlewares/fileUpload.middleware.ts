@@ -1,7 +1,11 @@
 import multer from "multer";
 import path from "path";
 import { v2 as cloudinary } from "cloudinary";
-import { CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET } from "../config/ENV";
+import {
+  CLOUDINARY_CLOUD_NAME,
+  CLOUDINARY_API_KEY,
+  CLOUDINARY_API_SECRET,
+} from "../config/ENV";
 
 // Configure Cloudinary
 cloudinary.config({
@@ -19,7 +23,7 @@ const userFileUploadMiddleware = (uploadFolder: string) => {
     filename: (req, file, cb) => {
       const extname = path.extname(file.originalname);
       const filename = Date.now() + "-" + file.fieldname + extname; // Unique file name
-      cb(null, filename); // Set the file name
+      cb(null, filename);
     },
   });
 

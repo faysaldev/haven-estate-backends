@@ -29,7 +29,7 @@ export const response = (response: ResponseData = {} as ResponseData) => {
   }
 
   if (response.token) {
-    responseObject.data.token = response.token; // Fixed typo: changed `response.tokens` to `response.token`
+    responseObject.data.token = response.token;
   }
 
   return responseObject;

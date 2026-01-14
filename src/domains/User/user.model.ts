@@ -4,7 +4,7 @@ import validator from "validator";
 import bcrypt from "bcryptjs";
 
 export interface IAMUser extends Document {
-  _id: Types.ObjectId; // Explicitly typing _id
+  _id: Types.ObjectId;
   name: string;
   email: string;
   password: string;
@@ -16,7 +16,7 @@ export interface IAMUser extends Document {
   isResetPassword: boolean;
   fcmToken: string;
   isDeleted: boolean;
-  isPasswordMatch(password: string): Promise<boolean>; // Add this method to IAMUser interface
+  isPasswordMatch(password: string): Promise<boolean>;
 }
 
 const userSchema = new Schema<IAMUser>(
@@ -80,7 +80,7 @@ userSchema.methods.isPasswordMatch = async function (password: string) {
 
 userSchema.pre("save", async function (next) {
   if (this.isModified("password")) {
-    this.password = await bcrypt.hash(this.password, 8); // Hash password with a salt of 8 rounds
+    this.password = await bcrypt.hash(this.password, 8);
   }
   next();
 });

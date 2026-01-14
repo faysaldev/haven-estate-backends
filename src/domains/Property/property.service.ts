@@ -416,8 +416,6 @@ const getAllAdminProperties = async (
 
     // Build filter object
     const filter: any = {};
-
-    // Add search functionality across multiple fields
     if (search) {
       filter.$or = [
         { title: { $regex: search, $options: "i" } }, // Search in title

@@ -17,7 +17,6 @@ const createScheduleView = async (
   return newScheduleView;
 };
 
-// Service to get all schedule views with filtering and pagination
 const getAllScheduleViews = async (
   options: GetScheduleViewOptions
 ): Promise<{
@@ -44,11 +43,7 @@ const getAllScheduleViews = async (
 
   // Calculate skip value for pagination
   const skip = (page - 1) * limit;
-
-  // Get total count for pagination metadata
   const totalCount = await ScheduleView.countDocuments(filter);
-
-  // Get filtered and paginated results
   const scheduleViews = await ScheduleView.find(filter)
     .populate(
       "property_id",
@@ -56,9 +51,8 @@ const getAllScheduleViews = async (
     )
     .skip(skip)
     .limit(limit)
-    .sort({ createdAt: -1 }); // Sort by newest first
+    .sort({ createdAt: -1 });
 
-  // Calculate total pages
   const totalPages = Math.ceil(totalCount / limit);
 
   return {
@@ -98,11 +92,7 @@ const getMyScheduleViews = async (
 
   // Calculate skip value for pagination
   const skip = (page - 1) * limit;
-
-  // Get total count for pagination metadata
   const totalCount = await ScheduleView.countDocuments(filter);
-
-  // Get filtered and paginated results
   const scheduleViews = await ScheduleView.find(filter)
     .populate(
       "property_id",
@@ -110,9 +100,7 @@ const getMyScheduleViews = async (
     )
     .skip(skip)
     .limit(limit)
-    .sort({ createdAt: -1 }); // Sort by newest first
-
-  // Calculate total pages
+    .sort({ createdAt: -1 });
   const totalPages = Math.ceil(totalCount / limit);
 
   return {
@@ -145,8 +133,8 @@ const updateScheduleViewStatus = async (
     scheduleViewId,
     { status },
     {
-      new: true, // Return the updated document
-      runValidators: true, // Ensure validators are run
+      new: true,
+      runValidators: true,
     }
   );
 };

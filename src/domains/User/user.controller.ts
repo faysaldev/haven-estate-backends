@@ -17,7 +17,7 @@ const getAllUsers = async (req: Request, res: Response) => {
       })
     );
   } catch (error) {
-    const handledError = handleError(error); // Handle the error using the utility
+    const handledError = handleError(error);
     res.status(500).json({ error: handledError.message });
   }
 };
@@ -36,7 +36,7 @@ const userDetails = async (req: ProtectedRequest, res: Response) => {
       })
     );
   } catch (error) {
-    const handledError = handleError(error); // Handle the error using the utility
+    const handledError = handleError(error);
     res.status(500).json({ error: handledError.message });
   }
 };
@@ -57,14 +57,13 @@ const userDetailsUpdated = async (req: ProtectedRequest, res: Response) => {
       })
     );
   } catch (error) {
-    const handledError = handleError(error); // Handle the error using the utility
+    const handledError = handleError(error);
     res.status(500).json({ error: handledError.message });
   }
 };
 
 const singleFileUpload = async (req: ProtectedRequest, res: Response) => {
   try {
-    //  taking the path of the file console.log(req.file?.path);
     res.status(httpStatus.CREATED).json(
       response({
         message: "User Details",
@@ -81,8 +80,6 @@ const singleFileUpload = async (req: ProtectedRequest, res: Response) => {
 
 const multipleFileUpload = async (req: ProtectedRequest, res: Response) => {
   try {
-    //  taking the path of the file
-    console.log(req.files);
     res.status(httpStatus.CREATED).json(
       response({
         message: "User Details",

@@ -12,7 +12,6 @@ export const uploadToCloudinary = async (
   options?: UploadApiOptions
 ): Promise<any> => {
   return new Promise((resolve, reject) => {
-    // Default options for image upload
     const uploadOptions: UploadApiOptions = {
       resource_type: "image",
       ...options,
