@@ -35,7 +35,6 @@ const createBooking = async (bookingData: any) => {
       throw new Error("You have already booked this property");
     }
 
-    console.log(bookingExisting);
     const bookingId = bookingData.id || `BK${Date.now()}`;
     const booking = new Booking({
       ...bookingData,
@@ -44,7 +43,6 @@ const createBooking = async (bookingData: any) => {
 
     return await booking.save();
   } catch (error) {
-    // If it's our custom error about duplicate booking, re-throw it
     if ((error as Error).message === "You have already booked this property") {
       throw error;
     }
