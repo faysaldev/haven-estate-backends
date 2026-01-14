@@ -11,6 +11,8 @@ router.get("/my-bookings", authMiddleware, bookingController.getMyBookings);
 
 // Get a single booking by ID
 router.get("/:id", bookingController.getBookingById);
+// get stripe payments session
+router.get("/payment-check/:sessionId", bookingController.checkPaymentStatus);
 
 // Create a new booking
 router.post("/", authMiddleware, bookingController.createBooking);

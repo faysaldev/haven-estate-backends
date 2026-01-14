@@ -109,6 +109,24 @@ const getBookingById = async (req: ProtectedRequest, res: Response) => {
     res.status(500).json({ error: handledError.message });
   }
 };
+// Controller to get a booking by its ID
+const checkPaymentStatus = async (req: ProtectedRequest, res: Response) => {
+  try {
+    const sessionId = req.params.sessionId;
+
+    res.status(httpStatus.OK).json(
+      response({
+        message: "Booking Retrieved",
+        status: "OK",
+        statusCode: httpStatus.OK,
+        data: {},
+      })
+    );
+  } catch (error) {
+    const handledError = handleError(error); // Handle the error using the utility
+    res.status(500).json({ error: handledError.message });
+  }
+};
 
 // Controller to update status of a booking
 const updateBookingStatus = async (req: ProtectedRequest, res: Response) => {
@@ -203,4 +221,5 @@ export default {
   updateBookingStatus,
   updateBooking,
   getMyBookings,
+  checkPaymentStatus,
 };
