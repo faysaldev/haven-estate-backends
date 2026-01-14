@@ -3,6 +3,7 @@ import Property, { IProperty } from "./property.model";
 interface GetPropertiesOptions {
   page: number;
   limit: number;
+  search?: string; // General search term that can match title, location, description, etc.
   location?: string;
   type?: string;
   status?: string;
@@ -49,10 +50,10 @@ const getAllProperties = async (
     itemsPerPage: number;
   };
 }> => {
-  const { page, limit, location, type, status, minPrice, maxPrice } = options;
+  const { page, limit, search, type, status, minPrice, maxPrice } = options;
 
   // Create cache key based on query parameters
-  const cacheKey = `properties:${page}:${limit}:${location || "all"}:${
+  const cacheKey = `properties:${page}:${limit}:${search || "all"}:${"all"}:${
     type || "all"
   }:${status || "all"}:${minPrice || "none"}:${maxPrice || "none"}`;
 
@@ -66,8 +67,13 @@ const getAllProperties = async (
     // Build filter object
     const filter: any = {};
 
-    if (location) {
-      filter.location = { $regex: location, $options: "i" }; // Case insensitive search
+    // Add search functionality across multiple fields
+    if (search) {
+      filter.$or = [
+        { title: { $regex: search, $options: "i" } }, // Search in title
+        { location: { $regex: search, $options: "i" } }, // Search in location
+        { features: { $regex: search, $options: "i" } }, // Search in features
+      ];
     }
 
     if (type) {
@@ -116,10 +122,29 @@ const getAllProperties = async (
 
     return result;
   } catch (error) {
+    console.error("Error in getAllProperties:", error);
+
+    // Build filter object
     const filter: any = {};
 
+    // Add search functionality across multiple fields
+    if (search) {
+      filter.$or = [
+        { title: { $regex: search, $options: "i" } }, // Search in title
+        { location: { $regex: search, $options: "i" } }, // Search in location
+        { features: { $regex: search, $options: "i" } }, // Search in features
+      ];
+    }
+
+    // Add location filter if provided (this can work alongside search)
     if (location) {
-      filter.location = { $regex: location, $options: "i" }; // Case insensitive search
+      if (search) {
+        // If both search and location are provided, add location to the $or condition
+        filter.$or.push({ location: { $regex: location, $options: "i" } });
+      } else {
+        // If only location is provided, use it as a direct filter
+        filter.location = { $regex: location, $options: "i" }; // Case insensitive search
+      }
     }
 
     if (type) {
@@ -149,7 +174,7 @@ const getAllProperties = async (
     // Get filtered and paginated results
     const properties = await Property.find(filter)
       .select(
-        "_id title location price status type createdAt image bedrooms bathrooms area views"
+        "_id title location price status type createdAt images bedrooms bathrooms area views"
       )
       .skip(skip)
       .limit(limit)
@@ -304,12 +329,15 @@ const getAllAdminProperties = async (
     itemsPerPage: number;
   };
 }> => {
-  const { page, limit, location, type, status, minPrice, maxPrice } = options;
+  const { page, limit, search, location, type, status, minPrice, maxPrice } =
+    options;
 
   // Create cache key based on query parameters
-  const cacheKey = `properties:${page}:${limit}:${location || "all"}:${
-    type || "all"
-  }:${status || "all"}:${minPrice || "none"}:${maxPrice || "none"}`;
+  const cacheKey = `properties:${page}:${limit}:${search || "all"}:${
+    location || "all"
+  }:${type || "all"}:${status || "all"}:${minPrice || "none"}:${
+    maxPrice || "none"
+  }`;
 
   try {
     // TODO: redis Try to get cached result first
@@ -321,8 +349,24 @@ const getAllAdminProperties = async (
     // Build filter object
     const filter: any = {};
 
+    // Add search functionality across multiple fields
+    if (search) {
+      filter.$or = [
+        { title: { $regex: search, $options: "i" } }, // Search in title
+        { location: { $regex: search, $options: "i" } }, // Search in location
+        { features: { $regex: search, $options: "i" } }, // Search in features
+      ];
+    }
+
+    // Add location filter if provided (this can work alongside search)
     if (location) {
-      filter.location = { $regex: location, $options: "i" }; // Case insensitive search
+      if (search) {
+        // If both search and location are provided, add location to the $or condition
+        filter.$or.push({ location: { $regex: location, $options: "i" } });
+      } else {
+        // If only location is provided, use it as a direct filter
+        filter.location = { $regex: location, $options: "i" }; // Case insensitive search
+      }
     }
 
     if (type) {
@@ -368,10 +412,29 @@ const getAllAdminProperties = async (
 
     return result;
   } catch (error) {
+    console.error("Error in getAllAdminProperties:", error);
+
+    // Build filter object
     const filter: any = {};
 
+    // Add search functionality across multiple fields
+    if (search) {
+      filter.$or = [
+        { title: { $regex: search, $options: "i" } }, // Search in title
+        { location: { $regex: search, $options: "i" } }, // Search in location
+        { features: { $regex: search, $options: "i" } }, // Search in features
+      ];
+    }
+
+    // Add location filter if provided (this can work alongside search)
     if (location) {
-      filter.location = { $regex: location, $options: "i" }; // Case insensitive search
+      if (search) {
+        // If both search and location are provided, add location to the $or condition
+        filter.$or.push({ location: { $regex: location, $options: "i" } });
+      } else {
+        // If only location is provided, use it as a direct filter
+        filter.location = { $regex: location, $options: "i" }; // Case insensitive search
+      }
     }
 
     if (type) {

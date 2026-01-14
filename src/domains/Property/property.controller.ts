@@ -66,12 +66,14 @@ const getAllProperties = async (req: ProtectedRequest, res: Response) => {
       status,
       minPrice,
       maxPrice,
+      search,
     } = req.query;
 
     const options = {
       page: parseInt(page as string) || 1,
       limit: parseInt(limit as string) || 10,
       location: location as string | undefined,
+      search: search as string | undefined,
       type: type as string | undefined,
       status: status as string | undefined,
       minPrice: minPrice ? parseFloat(minPrice as string) : undefined,
