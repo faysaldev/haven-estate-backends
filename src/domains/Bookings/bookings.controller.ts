@@ -11,7 +11,6 @@ const createBooking = async (req: ProtectedRequest, res: Response) => {
     const { user } = req;
     const bookingData = { author: user?._id as string, ...req.body };
     const booking = await bookingService.createBooking(bookingData);
-
     console.log(booking);
 
     res.status(201).json({
