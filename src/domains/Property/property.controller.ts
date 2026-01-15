@@ -32,6 +32,9 @@ const createProperty = async (req: ProtectedRequest, res: Response) => {
       }
     }
 
+    if (req.body?.features) {
+      req.body.features = JSON.parse(req.body?.features);
+    }
     const propertyData = req.body;
     const property = await propertyService.createProperty(propertyData);
     res.status(201).json({
@@ -191,6 +194,10 @@ const updateProperty = async (req: ProtectedRequest, res: Response) => {
           });
         }
       }
+    }
+
+    if (req.body?.features) {
+      req.body.features = JSON.parse(req.body?.features);
     }
     const propertyId = req.params.id;
     const propertyData = req.body;

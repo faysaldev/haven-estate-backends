@@ -495,10 +495,14 @@ const getPropertyById = async (
     // }
 
     // If not in cache, get from database with agent populated
-    const property = await Property.findById(propertyId).populate(
-      "agent",
-      "name number email"
-    );
+    const property = await Property.findByIdAndUpdate(
+      propertyId,
+      { $inc: { views: 1 } },
+      {
+        new: true,
+        runValidators: true,
+      }
+    ).populate("agent", "name number email");
 
     if (property) {
       // Increment view count after fetching the property
