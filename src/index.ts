@@ -1,5 +1,6 @@
 import connectionToDb from "./config/db";
 import { BACKEND_IP, PORT } from "./config/ENV";
+import setUpSocketIO from "./config/socketio";
 import app from "./server";
 import dotenv from "dotenv";
 import http from "http";
@@ -10,25 +11,16 @@ dotenv.config();
 // connection to the database
 connectionToDb();
 
-// For Vercel compatibility, only start server if not in a serverless environment
-if (!process.env.VERCEL_ENV) {
-  // creating server
-  const server = http.createServer(app);
+// creating server
+const server = http.createServer(app);
 
-  // Initialize socket.io only in non-serverless environments
-  if (!process.env.VERCEL_ENV) {
-    import("./config/socketio").then(({ default: setUpSocketIO }) => {
-      const io = setUpSocketIO(server);
-    });
-  }
+// initialize the socket io
+const io = setUpSocketIO(server);
 
-  //using the imported values
-  const backendIp = BACKEND_IP || 'localhost';
-  const port = PORT || 3000;
+//using the post and ip over here
+const backendIp = process.env.BACKEND_IP;
+const port = process.env.PORT || 3000;
 
-  server.listen(port, backendIp, () => {
-    console.log(`Server is running at http://${backendIp}:${port}`);
-  });
-}
-
-export default app;
+server.listen(PORT, BACKEND_IP, () => {
+  console.log(`Server is running at http://${BACKEND_IP}:${PORT}`);
+});
