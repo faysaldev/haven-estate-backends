@@ -216,7 +216,9 @@ const checkPaymentStatus = async (req: ProtectedRequest, res: Response) => {
       );
       await sendEmail(
         paymentStatus?.sessionData?.customer_email!,
-        `Payment Received Successful - $${paymentStatus?.sessionData?.amount_total}`,
+        `Payment Received Successful - $${Math.floor(
+          paymentStatus?.sessionData?.amount_total! / 100
+        )}`,
         `Thanks For your Order We had Received Your order. Our agents will contact with  you sooner with your contact number`
       );
     }
