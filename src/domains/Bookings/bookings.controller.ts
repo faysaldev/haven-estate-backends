@@ -203,12 +203,6 @@ const checkPaymentStatus = async (req: ProtectedRequest, res: Response) => {
 
     // Check the payment status using the Stripe helper
     const paymentStatus = await checkPaymentStatusHelper(sessionId);
-
-    // Log the values as requested
-    console.log("Payment Status:", paymentStatus.status);
-    console.log("Metadata:", paymentStatus.metadata);
-    console.log("Session Data:", paymentStatus.sessionData);
-
     if (paymentStatus.status == "paid") {
       const updatedBooking = await bookingService.updateBookingAfterPayment(
         paymentStatus?.metadata?.booking_id!,
