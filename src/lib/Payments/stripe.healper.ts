@@ -19,8 +19,6 @@ interface PaymentData {
 const createStripePaymentLink = async (paymentData: PaymentData) => {
   try {
     const { amount, name, author_id, booking_id } = paymentData;
-
-    console.log(paymentData);
     const successUrl = `${FRONT_END_URL}/bookings/success`;
     const cancelUrl = `${FRONT_END_URL}/bookings/cancel`;
     // Create a Stripe Checkout Session
@@ -53,7 +51,6 @@ const createStripePaymentLink = async (paymentData: PaymentData) => {
 
     return session.url!;
   } catch (error) {
-    console.error("Error creating Stripe payment link:", error);
     throw new Error(
       `Failed to create payment link: ${(error as Error).message}`
     );
@@ -81,7 +78,6 @@ const checkPaymentStatusHelper = async (sessionId: string) => {
       },
     };
   } catch (error) {
-    console.error("Error checking payment status:", error);
     throw new Error(
       `Failed to check payment status: ${(error as Error).message}`
     );

@@ -122,8 +122,6 @@ const getAllProperties = async (
 
     return result;
   } catch (error) {
-    console.error("Error in getAllProperties:", error);
-
     // Build filter object
     const filter: any = {};
 
@@ -412,8 +410,6 @@ const getAllAdminProperties = async (
 
     return result;
   } catch (error) {
-    console.error("Error in getAllAdminProperties:", error);
-
     // Build filter object
     const filter: any = {};
     if (search) {
@@ -516,7 +512,6 @@ const getPropertyById = async (
 
     return property;
   } catch (error) {
-    console.error("Redis error in getPropertyById:", error);
     // In case of Redis error, fetch from database with populated agent
     await incrementViewCount(propertyId);
     return Property.findById(propertyId).populate("agent", "name number email");
