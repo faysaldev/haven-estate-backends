@@ -218,14 +218,11 @@ const updateBooking = async (
 // update after payments
 const updateBookingAfterPayment = async (bookingId: string, status: string) => {
   try {
-    return await Booking.findOneAndUpdate(
-      { id: bookingId },
-      { status: status },
-      {
-        new: true, // Return the updated document
-        runValidators: true, // Ensure validators are run
-      }
-    );
+    const updatedBooking = await Booking.findByIdAndUpdate(bookingId, {
+      status,
+    });
+
+    return {};
   } catch (error) {
     throw new Error(`Failed to update booking: ${(error as Error).message}`);
   }
