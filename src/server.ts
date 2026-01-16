@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import routes from "./routes/index";
-import logRequestResponse from "./middlewares/logger.middleware";
+// TODO: for development parpuse
+// import logRequestResponse from "./middlewares/logger.middleware";
 import compression from "compression";
 import cors from "cors";
 
@@ -24,7 +25,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(compression());
 
 // Use the logging middleware for all routes
-app.use(logRequestResponse);
+// app.use(logRequestResponse);
 // Use the centralized routes
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello, TypeScript with Node and Express!");
