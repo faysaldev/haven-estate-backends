@@ -1,8 +1,21 @@
-# TS Backend Kit
+# Haven Estate - Backend
 
-A TypeScript-based backend starter kit that helps you quickly set up APIs with the required features for modern backend applications. It includes essential features like user authentication, JWT tokens, and email verification.
+A TypeScript-based backend for Haven Estate application. It includes essential features like user authentication, JWT tokens, and email verification.
 
-This starter kit is structured and modular, providing a clear separation of concerns for routes, controllers, services, and validation.
+**Live URL:** [https://haven-estate.vercel.app/](https://haven-estate.vercel.app/)
+
+<img src="./haven-estate.gif" width="100%" alt="Haven Estate Demo">
+
+## Admin Credentials
+
+```json
+{
+  "front-end_admin_credentials": {
+    "email": "faysalworkspace@gmail.com",
+    "password": "1qazxsw2"
+  }
+}
+```
 
 ## Features
 
