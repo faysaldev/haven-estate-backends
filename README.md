@@ -10,7 +10,7 @@ A TypeScript-based backend for Haven Estate application. It includes essential f
 
 ```json
 {
-  "front-end_admin_credentials": {
+  "admin_credentials": {
     "email": "faysalworkspace@gmail.com",
     "password": "1qazxsw2"
   }
